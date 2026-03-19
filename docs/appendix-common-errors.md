@@ -147,6 +147,34 @@ gt dolt status     # shows orphan count
 
 ---
 
+## Mail Commands
+
+### `gt mail` with no subcommand gives "requires a subcommand"
+```bash
+gt mail inbox    # ✅ list messages
+gt mail read 1   # ✅ read by index
+```
+
+### `gt mail send` — `--thread` flag doesn't exist
+Use `--reply-to <message-id>` instead:
+```bash
+gt mail send edinsights_ui/claudio \
+  --subject "Re: ..." \
+  --reply-to hq-wisp-xxxxx \    # message ID from gt mail inbox
+  --message "your reply"
+```
+
+### `gt mail inbox` shows old messages mixed with new
+Messages stay in inbox until archived. The newest is always index 1. Use `gt mail read 1` to get the latest.
+
+### After replying, crew agent doesn't continue
+You need to nudge it — mail delivery alone doesn't wake the agent:
+```bash
+gt nudge edinsights_ui/claudio "Answers sent. Continue."
+```
+
+---
+
 ## Formula / Molecule Issues
 
 ### `gt formula list` doesn't show spec-workflow, plan-workflow, beads-workflow

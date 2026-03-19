@@ -102,134 +102,154 @@ gt crew at claudio
 
 ## Step 3: The Autonomous Phases
 
-The crew agent picks up the sling immediately (Propulsion Principle) and starts:
-
-### intake — PRD Drafting (autonomous, ~2 min)
-Agent reads your problem statement and structures it into a PRD draft:
-```
-Plans/prd-reviews/5-day-forecast/prd-draft.md
-```
-No input needed from you here.
-
-### prd-review — 6-Legged Parallel Review (autonomous, ~5 min)
-6 polecats spin up simultaneously, each reviewing from a different angle:
-- Requirements completeness
-- Gap analysis
-- Ambiguity detection
-- Feasibility assessment
-- Scope definition
-- Stakeholder impact
+The crew agent picks up the sling immediately (Propulsion Principle) and starts. **You don't need to watch** — but you can:
 
 ```bash
-# In Window 1, watch them work:
-gt polecat list YOUR_RIG    # see 6 polecats running
-gt feed                      # watch review events
+tmux capture-pane -t edi-crew-claudio -p | tail -30   # watch raw output
+gt feed                                                 # town-wide event stream
 ```
 
-Results are synthesized into a consolidated question list.
+### intake — PRD Drafting (autonomous, ~2 min)
+Agent reads the codebase and structures your problem statement into a PRD draft at `.prd-reviews/{slug}/prd-draft.md`. No input needed.
+
+### prd-review — 6-Dimensional Review (autonomous, ~5 min)
+6 parallel subagents review the PRD from different angles: requirements, gaps, ambiguity, feasibility, scope, stakeholders. Results synthesized into a consolidated question list.
+
+> 💡 **Note on `mol-prd-review`:** If the formula is installed, Gas Town spins up polecats for each leg. If not (it may be missing from your install), the crew agent runs the review itself using parallel subagents. Either way the output is the same — you won't notice the difference.
 
 ---
 
 ## Step 4: Your First Gate — `human-clarify`
 
-The crew session pauses and asks you questions synthesized from the 6-leg review:
+**The human gates use mail, not terminal input.** The crew agent pauses and sends you a mail message with the questions. You read it, reply, then nudge to continue.
 
-```
-Based on the PRD review, I need clarification on:
+```bash
+# Check your inbox
+gt mail inbox
 
-1. [AMBIGUITY] The --forecast flag: should it show forecast instead of 
-   current weather, or in addition to it?
-
-2. [SCOPE] The wttr.in API returns up to 3 days of forecast by default
-   (format=j1). Should we use a different endpoint or add a days parameter?
-
-3. [DESIGN] Should ForecastDay be a separate dataclass from WeatherData,
-   or extend it? (affects models.py, parser.py, display.py)
+# Read the questions (message 1 is the newest)
+gt mail read 1
 ```
 
-**Answer each question in the crew session.** The agent captures your answers and continues.
+You'll see something like:
+```
+Subject: PRD Questions: weatherly 5-day forecast
+From: edinsights_ui/claudio
+
+## Overall PRD Health: B-
+
+## Questions Needing Your Input
+
+### Must-Answer (Blocks Implementation)
+1. Output format: (a) table (b) stacked blocks (c) compact single-line?
+2. Forecast window: (a) today+4 days (b) tomorrow+4 days?
+3. Precipitation: (a) max hourly (b) average (c) daily summary?
+4. Flag behavior: (a) forecast only (b) current + forecast?
+5. API limit: (a) use whatever wttr.in supports (b) hard-require 5?
+
+### Should-Answer (Prevents Rework)
+6-10. [recommendations included, your call]
+
+Reply with numbered answers.
+```
+
+**Reply via mail and nudge to continue:**
+```bash
+gt mail send edinsights_ui/claudio \
+  --subject "Re: PRD Questions: weatherly 5-day forecast" \
+  --reply-to <message-id-from-inbox> \
+  --message "1. (b) Stacked blocks
+2. (a) Today + 4 future days
+3. (a) Maximum hourly value
+4. (b) Show current THEN forecast
+5. (a) Use whatever wttr.in supports
+6-10. Accept recommendations.
+Proceed."
+
+gt nudge edinsights_ui/claudio "Answers sent. Proceed with plan generation."
+```
 
 ---
 
 ## Step 5: The Plan Generation Phase
 
 ### generate-plan — 6-Dimensional Design (autonomous, ~8 min)
-
-6 polecats design the implementation plan in parallel, each from a different dimension:
-- API design
-- Data modeling
-- UX/output format
-- Scale/performance considerations
-- Security
-- Integration with existing code
+6 parallel subagents design the implementation from different angles: API, data model, UX/display, integration, error handling, testing. Each writes design artifacts to disk.
 
 ### plan-review — 5-Legged Review (autonomous, ~5 min)
-
-5 polecats review the plan for:
-- Completeness (does it cover the full spec?)
-- Sequencing (are the phases in the right order?)
-- Risk (what could go wrong?)
-- Scope creep (is anything gold-plated?)
-- Testability (can the ACs be verified?)
+5 reviewers check: completeness, sequencing, risk, scope creep, testability. Verdict: GO or REVISE.
 
 ---
 
 ## Step 6: Your Second Gate — `human-approve`
 
-The crew session presents the full implementation plan and asks:
+Same pattern — mail arrives, you read and reply.
 
-```
-Plan Summary:
-
-Phase 1: Data layer
-  • Add ForecastDay dataclass to models.py (no deps)
-  • Add parse_forecast() to parser.py (depends on ForecastDay)
-  
-Phase 2: Display
-  • Add display_forecast() to display.py (depends on ForecastDay)
-
-Phase 3: Wire up  
-  • Update cli.py with --forecast flag (no deps)
-  • Update __main__.py to call forecast path (depends on parser + display)
-
-Phase 4: Tests
-  • Add test_forecast_parser.py (depends on ForecastDay + parser)
-  • Add test_forecast_integration.py (depends on full app)
-
-Dependency graph verified: 2 cycles checked, none found.
-Parallelism: Phase 1 tasks run in parallel. Phase 3 tasks run in parallel.
-
-─────────────────────────────────────────────────────
-Do you approve this plan? (yes to create beads, no to revise)
+```bash
+gt mail inbox       # new message from claudio
+gt mail read 1
 ```
 
-Type **yes**. The crew agent proceeds to `create-beads`.
+You'll see:
+```
+Subject: Plan Ready for Approval: weatherly 5-day forecast
+
+Plan Review Verdict: GO (all 5 dimensions)
+
+## Must-Fix Items
+1. Verify wttr.in field names before coding parser
+2. Guard empty hourly arrays (max() on empty crashes)
+3. Guard missing conditions with fallback
+
+## Implementation Plan (4 Waves)
+Wave 1: models.py + cli.py (--forecast flag)
+Wave 2: fetcher.py + parser.py (parse_forecast)
+Wave 3: display.py (display_forecast, stacked blocks)
+Wave 4: __main__.py (integration) + tests
+
+Reply: APPROVE / APPROVE WITH NOTES / REVISE
+```
+
+```bash
+gt mail send edinsights_ui/claudio \
+  --subject "Re: Plan Ready for Approval: weatherly 5-day forecast" \
+  --reply-to <message-id> \
+  --message "APPROVE
+
+Proceed to bead creation."
+
+gt nudge edinsights_ui/claudio "Approved. Create the beads."
+```
 
 ---
 
 ## Step 7: Automatic Bead Creation
 
-The agent creates the full bead hierarchy:
+The agent creates the full bead hierarchy autonomously. Watch `gt feed` or just wait — it takes about 1-2 minutes. When done, the crew session goes idle and reports:
 
 ```
-✓ Created edi-010 [epic]  5-day-forecast
-✓ Created edi-011 [task]  Add ForecastDay dataclass
-✓ Created edi-012 [task]  Add parse_forecast() function
-✓ Created edi-013 [task]  Add display_forecast() function
-✓ Created edi-014 [task]  Update cli.py with --forecast flag
-✓ Created edi-015 [task]  Wire forecast into __main__.py
-✓ Created edi-016 [task]  Add forecast parser tests
-✓ Created edi-017 [task]  Add forecast integration test
-
-Dependency graph:
-  edi-012 blocked by edi-011
-  edi-013 blocked by edi-011
-  edi-015 blocked by edi-012, edi-013, edi-014
-  edi-016 blocked by edi-011, edi-012
-  edi-017 blocked by edi-015
-
-✓ All beads created. Ready for convoy stage → launch.
+Ready to dispatch: edi-d0x and edi-7hm are unblocked (Wave 1).
+Awaiting your next instruction.
 ```
+
+Check what was created:
+```bash
+cd ~/gt/edinsights_ui/crew/claudio
+bd list | grep -v "wisp\|Patrol\|Refinery"
+```
+
+You'll see something like:
+```
+○ edi-d0x ● P2  Add ForecastDay and Forecast dataclasses to models.py
+○ edi-7hm ● P2  Add --forecast flag to CLI argument parser
+○ edi-ig4 ● P2  Implement fetch_weather() for wttr.in API
+○ edi-izs ● P2  Implement parse_forecast() for daily forecast extraction
+○ edi-8me ● P2  Implement display_forecast() with stacked blocks output
+○ edi-rs6 ● P2  Wire --forecast through main() pipeline
+○ edi-csx ● P2  Add unit and integration tests for forecast feature
+```
+
+Real beads, real dependencies, created from an approved plan. Total time from idea to beads: ~20 minutes. Human time invested: answering ~15 questions across 2 gates.
 
 ---
 
@@ -327,18 +347,48 @@ gt sling edi-042 YOUR_RIG
 
 ---
 
+## ⏱️ Realistic Timing
+
+From `gt sling mol-idea-to-plan` to beads ready:
+- intake + PRD draft: ~2 min
+- 6-leg PRD review: ~5 min
+- human-clarify gate (you): 2-5 min to read + reply
+- 6-dimensional plan design: ~8 min
+- 5-leg plan review: ~5 min
+- human-approve gate (you): 2-5 min to read + approve
+- bead creation: ~2 min
+- **Total: ~20-30 min, ~2-5 min of your time**
+
 ## 📝 Key Commands Learned
 
 ```bash
-gt crew start claudio          # start crew session
-gt crew at claudio             # attach to it
-gt formula list                # see all available formulas
+gt crew start claudio --rig YOUR_RIG    # start crew session
+gt crew list YOUR_RIG                   # verify it's running
+gt formula list                         # see all available formulas
+
+# Sling the pipeline (from ~/gt, NOT inside crew session)
 gt sling mol-idea-to-plan YOUR_RIG/crew/claudio \
   --var problem="..." \
-  --var context="..."          # run the full design pipeline
-gt sling shiny YOUR_RIG \
-  --var feature="X"            # run shiny directly on a bead
-gt convoy -i                   # interactive convoy monitoring
+  --var context="..."
+
+# Monitor progress
+tmux capture-pane -t edi-crew-claudio -p | tail -30
+gt feed
+
+# Human gates (mail-based)
+gt mail inbox                           # check for questions/approval requests
+gt mail read 1                          # read the message
+gt mail send edinsights_ui/claudio \
+  --subject "Re: ..." \
+  --reply-to <message-id> \
+  --message "your answers"
+gt nudge edinsights_ui/claudio "..."    # wake the crew agent to continue
+
+# After bead creation
+bd list | grep -v "wisp\|Patrol"        # see created beads
+gt convoy stage <epic-id>               # validate + wave plan
+gt convoy launch <convoy-id>            # kick off implementation
+gt convoy -i                            # watch progress
 ```
 
 ---
