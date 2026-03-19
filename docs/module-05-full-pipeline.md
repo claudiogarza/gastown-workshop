@@ -1,329 +1,344 @@
 # Module 5: The Full Pipeline
 
-> **Goal:** Run the complete design-to-delivery pipeline using the gt-toolkit formula workflow. Experience how spec → plan → beads → swarm works as an integrated system, run interactively in a crew session.
+> **Goal:** Use Gas Town's native formula workflows — `mol-idea-to-plan` for design and `shiny` for implementation — instead of manually creating beads. Experience how the full pipeline works end-to-end in a crew session.
 
 ---
 
-## What We've Been Doing vs What We Should Be Doing
+## Two Workflows, One Pipeline
 
-In Modules 1-4, you manually:
-- Wrote bead descriptions
-- Figured out dependencies yourself
-- Created beads one at a time
-- Set up convoys manually
-
-This worked because you knew exactly what to build. In real projects, you often don't. You have a brief and a codebase, and you need to figure out:
-- What are the actual scope questions?
-- What are the right phases?
-- Which files does this touch?
-- What are the acceptance criteria for each task?
-- What depends on what?
-
-**The gt-toolkit pipeline does this for you** — with multi-LLM review at every stage.
-
----
-
-## The Pipeline
+Gas Town ships with two key formulas that handle the full lifecycle:
 
 ```
 Your idea (1 sentence)
          │
          ▼
-┌─────────────────────────────┐
-│  SPEC PHASE (Stages 1-4)    │  ← runs in crew session
-│                             │
-│  1. Scope Questions         │  → 3x3 LLM matrix surfaces blind spots
-│  2. Brainstorm              │  → interactive dialogue → validated spec
-│  3. Questions Interview     │  → completeness check, loops until clean
-│  4. Multimodal Review       │  → 3 models review in parallel, you gate "go"
-└────────────┬────────────────┘
-             │ outputs: plans/{feature}/02-spec/spec.md
-             ▼
-┌─────────────────────────────┐
-│  PLAN PHASE (Stages 5-6)    │  ← runs in crew session
-│                             │
-│  5. Plan Writing            │  → deep codebase analysis → phased plan
-│  6. Plan Review             │  → 3-directional review
-└────────────┬────────────────┘
-             │ outputs: plans/{feature}/03-plan/plan.md
-             ▼
-┌─────────────────────────────┐
-│  BEADS PHASE (Stages 7-8)   │  ← runs in crew session
-│                             │
-│  7. Beads Creation          │  → 3 review passes → creates beads with deps
-│  8. Beads Review            │  → bidirectional plan↔beads verification
-└────────────┬────────────────┘
-             │ outputs: verified beads hierarchy
-             ▼
-┌─────────────────────────────┐
-│  DELIVERY (Stage 9)         │  ← you launch, polecats execute
-│                             │
-│  gt convoy stage → launch   │  → swarm of polecats in parallel waves
-└─────────────────────────────┘
+┌─────────────────────────────────────┐
+│  mol-idea-to-plan                   │  ← runs in crew session
+│                                     │
+│  intake:         structure PRD      │
+│  prd-review:     6 polecats review  │  autonomous
+│  human-clarify:  you answer Qs      │  ← your input
+│  generate-plan:  6 polecats design  │  autonomous
+│  plan-review:    5 polecats review  │  autonomous
+│  human-approve:  you greenlight     │  ← your input
+│  create-beads:   beads created      │  autonomous
+└────────────────────────────────────-┘
+         │ outputs: beads hierarchy with deps
+         ▼
+┌──────────────────────────────────────┐
+│  gt convoy stage → launch            │  you do this
+│                                      │
+│  Polecats execute each bead using    │
+│  the `shiny` formula:                │
+│    design → implement → review       │
+│           → test → submit           │
+└──────────────────────────────────────┘
 ```
+
+**Two human gates** in the whole process:
+1. After PRD review — you answer clarifying questions
+2. After plan review — you approve before beads are created
+
+Everything else is autonomous.
+
+---
+
+## The `shiny` Formula: What Polecats Actually Do
+
+Every bead a polecat picks up runs the `shiny` formula under the hood — "Engineer in a Box":
+
+```
+design     → think about architecture, write design doc
+implement  → write the code following the design
+review     → self-review: does it match the design? any bugs?
+test       → write and run tests, fix regressions
+submit     → final check, commit, push to feature branch
+```
+
+This is why polecats consistently produce better output than raw "write this code" instructions — they're following a structured workflow with acceptance criteria at each step. You can also sling `shiny` directly to a polecat for any single bead.
 
 ---
 
 ## Why This Runs in a Crew Session
 
-Stages 2, 3, 4, 5, 6 are **interactive** — they need a human in the loop:
-- Stage 2 asks you to make scope decisions
-- Stage 3 asks clarifying questions if it finds gaps
-- Stage 4 presents findings and asks "go or fix?"
-- Stage 5 asks architecture questions
-- Stage 6 may escalate ambiguities
-
-A polecat can't do this — it's ephemeral and headless. A crew session is persistent and interactive. That's why crew exists.
+The `mol-idea-to-plan` workflow has two interactive steps where it pauses and waits for you. A polecat can't do this — it's headless and ephemeral. A crew session is persistent and interactive — you attach to it, answer the questions, and the workflow continues.
 
 ---
 
-## Step 1: Start (or Attach to) Your Crew Session
+## Step 1: Start Your Crew Session
 
 ```bash
-# Start the session (creates a tmux window with Claude Code running inside)
+# Start the tmux session with Claude Code inside
 gt crew start claudio
 
-# Attach your terminal to it
+# In a separate terminal, attach to it
 gt crew at claudio
 ```
 
-> 💡 **`gt crew start` vs `gt crew at`:**
-> - `start` creates a new tmux session with Claude Code running inside it
-> - `at` attaches your terminal to an already-running session
->
-> After `gt crew start`, you'll see a Claude Code session open. This is your crew agent — it has already run `gt prime` and knows its identity as `YOUR_RIG/crew/claudio`.
+Once attached, you'll see a Claude Code prompt inside `~/gt/YOUR_RIG/crew/claudio/`. This is your crew agent — it has already run `gt prime` and knows its identity.
 
-You're now inside the crew session. Your identity: `YOUR_RIG/crew/claudio`. Working directory: `~/gt/YOUR_RIG/crew/claudio/`.
-
-> 💡 **The crew session is interactive.** Unlike polecats (which run headless), crew sessions are attached to your terminal. The formula workflows have dialogue steps that require your input — you'll read the output and respond directly in the session.
+> 💡 **Two windows:** Keep two terminal windows open. Window 1: your normal shell for running `gt` commands. Window 2: attached to the crew session via `gt crew at claudio`. The crew session is where the interactive pipeline runs.
 
 ---
 
-## Step 2: Install the Formulas (One-Time)
+## Step 2: Sling `mol-idea-to-plan` to the Crew Session
 
-If you haven't already:
+From your **normal shell** (Window 1):
 
-```bash
-cp ~/source/gt-toolkit/formulas/*.formula.toml ~/gt/.beads/formulas/
-```
-
-Verify:
-```bash
-gt formula list
-```
-
-You should see `spec-workflow`, `plan-workflow`, `beads-workflow`, and the expansion formulas.
-
----
-
-## Step 3: Run the Spec Pipeline
-
-We're going to add a **v2 feature**: add a 5-day forecast to weatherly.
-
-**From your terminal** (not from inside the crew session — sling TO the crew session):
 ```bash
 cd ~/gt
-gt sling spec-workflow YOUR_RIG/crew/claudio \
-  --var feature="5-day-forecast" \
-  --var brief="Add a 5-day weather forecast to weatherly. Show each day's high/low temps, precipitation probability, and conditions. Display in the same terminal-friendly format as current weather."
+gt sling mol-idea-to-plan YOUR_RIG/crew/claudio \
+  --var problem="Add a 5-day weather forecast to weatherly. Show each day's high/low temps, precipitation probability, and conditions summary. Should integrate with the existing display module and be triggered by a --forecast flag." \
+  --var context="weatherly is a Python CLI that calls wttr.in API. Existing modules: config.py, models.py, parser.py, fetcher.py, display.py, cli.py, __main__.py"
 ```
 
-> ⚠️ **Where to run this:** Run `gt sling` from `~/gt` in a separate terminal window. The crew session receives the sling and starts working. Then `gt crew at claudio` to attach and interact with the running workflow.
+Then **attach to the crew session** (Window 2) to watch and interact:
 
-This slinging kicks off a molecule in your crew session. Because you're in the crew session, you'll see it start immediately (Propulsion Principle).
-
-**What you'll experience interactively:**
-
-### Stage 1: Scope Questions (automated)
-The formula dispatches Opus/GPT/Gemini in a 3x3 matrix. You wait ~2 minutes while 9 parallel analyses run. Output: `plans/5-day-forecast/01-scope/questions.md`
-
-### Stage 2: Brainstorm (interactive)
-The crew session presents you with a triaged list of scope questions:
+```bash
+gt crew at claudio
 ```
-AUTO-ANSWERABLE (I'll handle these):
-  • Should use existing Config dataclass ✓
-  • Should reuse existing display patterns ✓
-  • ...
-
-BRANCH POINTS (your decision needed):
-  1. Forecast data structure: separate ForecastDay dataclass, or extend WeatherData?
-  2. Display format: side-by-side columns or stacked days?
-  3. API endpoint: wttr.in supports forecast=3, forecast=7 — which default?
-```
-
-You answer each one. The spec gets written incrementally.
-
-### Stage 3: Questions Interview (semi-interactive)
-Reviews the spec for completeness. May ask 1-2 clarifying questions. Usually clean after stage 2.
-
-### Stage 4: Multimodal Review (interactive gate)
-Three models review the spec in parallel. You see findings:
-```
-P0 Issues (must fix before proceeding):
-  • Spec doesn't mention how to handle missing forecast data from API
-
-P1 Issues (recommend fixing):
-  • Acceptance criteria for 'precipitation probability' are vague
-
-P2 (suggestions):
-  • Consider adding a --days flag to control forecast depth
-```
-
-You choose: fix them, accept them, or skip. Spec updates. You gate "go."
-
-**Output:** `plans/5-day-forecast/02-spec/spec.md` — a reviewed, complete specification.
 
 ---
 
-## Step 4: Run the Plan Pipeline
+## Step 3: The Autonomous Phases
+
+The crew agent picks up the sling immediately (Propulsion Principle) and starts:
+
+### intake — PRD Drafting (autonomous, ~2 min)
+Agent reads your problem statement and structures it into a PRD draft:
+```
+Plans/prd-reviews/5-day-forecast/prd-draft.md
+```
+No input needed from you here.
+
+### prd-review — 6-Legged Parallel Review (autonomous, ~5 min)
+6 polecats spin up simultaneously, each reviewing from a different angle:
+- Requirements completeness
+- Gap analysis
+- Ambiguity detection
+- Feasibility assessment
+- Scope definition
+- Stakeholder impact
 
 ```bash
-gt sling plan-workflow YOUR_RIG/crew/claudio \
-  --var feature="5-day-forecast"
+# In Window 1, watch them work:
+gt polecat list YOUR_RIG    # see 6 polecats running
+gt feed                      # watch review events
 ```
 
-**What you'll experience:**
+Results are synthesized into a consolidated question list.
 
-### Stage 5: Plan Writing (interactive)
-Three Sonnet agents run parallel codebase analysis:
-- Agent 1: architecture and existing patterns
-- Agent 2: integration points (what weatherly/models.py looks like, what parser.py does)
-- Agent 3: conventions and style
+---
 
-They consolidate. Then an interactive session builds the implementation plan:
+## Step 4: Your First Gate — `human-clarify`
+
+The crew session pauses and asks you questions synthesized from the 6-leg review:
+
 ```
-Based on codebase analysis, I'm proposing:
+Based on the PRD review, I need clarification on:
+
+1. [AMBIGUITY] The --forecast flag: should it show forecast instead of 
+   current weather, or in addition to it?
+
+2. [SCOPE] The wttr.in API returns up to 3 days of forecast by default
+   (format=j1). Should we use a different endpoint or add a days parameter?
+
+3. [DESIGN] Should ForecastDay be a separate dataclass from WeatherData,
+   or extend it? (affects models.py, parser.py, display.py)
+```
+
+**Answer each question in the crew session.** The agent captures your answers and continues.
+
+---
+
+## Step 5: The Plan Generation Phase
+
+### generate-plan — 6-Dimensional Design (autonomous, ~8 min)
+
+6 polecats design the implementation plan in parallel, each from a different dimension:
+- API design
+- Data modeling
+- UX/output format
+- Scale/performance considerations
+- Security
+- Integration with existing code
+
+### plan-review — 5-Legged Review (autonomous, ~5 min)
+
+5 polecats review the plan for:
+- Completeness (does it cover the full spec?)
+- Sequencing (are the phases in the right order?)
+- Risk (what could go wrong?)
+- Scope creep (is anything gold-plated?)
+- Testability (can the ACs be verified?)
+
+---
+
+## Step 6: Your Second Gate — `human-approve`
+
+The crew session presents the full implementation plan and asks:
+
+```
+Plan Summary:
 
 Phase 1: Data layer
-  • Extend models.py with ForecastDay dataclass
-  • Extend parser.py with parse_forecast() function
+  • Add ForecastDay dataclass to models.py (no deps)
+  • Add parse_forecast() to parser.py (depends on ForecastDay)
+  
+Phase 2: Display
+  • Add display_forecast() to display.py (depends on ForecastDay)
 
-Phase 2: Display layer  
-  • Extend display.py with display_forecast() function
+Phase 3: Wire up  
+  • Update cli.py with --forecast flag (no deps)
+  • Update __main__.py to call forecast path (depends on parser + display)
 
-Phase 3: Wire up
-  • Update cli.py with --forecast flag
-  • Update __main__.py to conditionally call forecast functions
+Phase 4: Tests
+  • Add test_forecast_parser.py (depends on ForecastDay + parser)
+  • Add test_forecast_integration.py (depends on full app)
 
-Does this phasing make sense? Any concerns?
+Dependency graph verified: 2 cycles checked, none found.
+Parallelism: Phase 1 tasks run in parallel. Phase 3 tasks run in parallel.
+
+─────────────────────────────────────────────────────
+Do you approve this plan? (yes to create beads, no to revise)
 ```
 
-You respond. Plan gets written.
-
-### Stage 6: Plan Review (automated + escalation)
-Three agents review: spec→plan coverage, plan→spec traceability, plan→codebase alignment. Auto-applies fixes, only escalates genuine ambiguities.
-
-**Output:** `plans/5-day-forecast/03-plan/plan.md` — deep, codebase-aware implementation plan.
+Type **yes**. The crew agent proceeds to `create-beads`.
 
 ---
 
-## Step 5: Run the Beads Pipeline
+## Step 7: Automatic Bead Creation
+
+The agent creates the full bead hierarchy:
+
+```
+✓ Created edi-010 [epic]  5-day-forecast
+✓ Created edi-011 [task]  Add ForecastDay dataclass
+✓ Created edi-012 [task]  Add parse_forecast() function
+✓ Created edi-013 [task]  Add display_forecast() function
+✓ Created edi-014 [task]  Update cli.py with --forecast flag
+✓ Created edi-015 [task]  Wire forecast into __main__.py
+✓ Created edi-016 [task]  Add forecast parser tests
+✓ Created edi-017 [task]  Add forecast integration test
+
+Dependency graph:
+  edi-012 blocked by edi-011
+  edi-013 blocked by edi-011
+  edi-015 blocked by edi-012, edi-013, edi-014
+  edi-016 blocked by edi-011, edi-012
+  edi-017 blocked by edi-015
+
+✓ All beads created. Ready for convoy stage → launch.
+```
+
+---
+
+## Step 8: Stage and Launch
+
+From Window 1:
 
 ```bash
-gt sling beads-workflow YOUR_RIG/crew/claudio \
-  --var feature="5-day-forecast"
+cd ~/gt
+gt convoy stage edi-010
 ```
 
-**What you'll experience:**
+You'll see the real wave output:
 
-### Stage 7: Beads Creation (interactive + automated)
-The formula reads the plan and builds a draft hierarchy:
 ```
-Feature Epic: 5-day-forecast
-├── Phase 1: Data Layer
-│   ├── Add ForecastDay dataclass to models.py
-│   └── Add parse_forecast() to parser.py (blocked by ForecastDay)
-├── Phase 2: Display Layer
-│   └── Add display_forecast() to display.py
-└── Phase 3: Wire Up
-    ├── Update cli.py with --forecast flag
-    └── Update __main__.py to use forecast (blocked by all above)
+Wave   ID       Title                           Blocked By
+───────────────────────────────────────────────────────────────
+1      edi-011  Add ForecastDay dataclass        —
+1      edi-014  Update cli.py --forecast flag    —
+2      edi-012  Add parse_forecast()             edi-011
+2      edi-013  Add display_forecast()           edi-011
+3      edi-015  Wire forecast into __main__.py   edi-012, 013, 014
+3      edi-016  Add forecast parser tests        edi-011, 012
+4      edi-017  Add forecast integration test    edi-015
+
+7 tasks across 4 waves (max parallelism: 2 in wave 1)
+Convoy created: hq-cv-forecast (status: staged_ready)
 ```
 
-Then 3 automated review passes:
-1. **Completeness** — every plan task has a bead? All ACs preserved?
-2. **Dependencies** — false blockers? Missing blockers? Circular deps?
-3. **Clarity** — each bead implementable by a fresh agent?
+Launch it:
+```bash
+gt convoy launch hq-cv-forecast
+```
 
-Fixes applied. Then beads are created via `bd create` with `--deps` at creation time.
+Then monitor:
+```bash
+gt convoy -i     # interactive dashboard
+gt feed          # event stream
+```
 
-### Stage 8: Beads Review (automated)
-Bidirectional verification. Plan→Beads: every plan task covered? Beads→Plan: every bead traces to the plan? Dep integrity: graph matches plan phasing?
-
-**Output:** Verified beads hierarchy with IDs mapped in `plans/5-day-forecast/04-beads/beads-report.md`.
+Walk away. The ConvoyManager handles waves 2, 3, and 4 automatically.
 
 ---
 
-## Step 6: Stage and Launch
+## The `shiny` Formula in Action
+
+Each polecat picks up its bead and runs `shiny` steps:
+
+```
+[Wave 1] furiosa picks up edi-011 (ForecastDay dataclass)
+  → design:    writes design doc for ForecastDay structure
+  → implement: creates models.py additions
+  → review:    checks against design doc
+  → test:      writes/runs unit tests
+  → submit:    commits, pushes branch
+
+[Wave 1] nux picks up edi-014 (cli.py --forecast flag)  
+  → same shiny loop, simultaneously
+```
+
+You can peek at any step:
+```bash
+gt peek YOUR_RIG/furiosa    # see what step furiosa is on
+```
+
+---
+
+## Running `shiny` Directly on a Single Bead
+
+For any single bead where you want the full design-implement-review-test-submit lifecycle:
 
 ```bash
-# Get the feature epic ID from beads-report.md
-cat plans/5-day-forecast/04-beads/beads-report.md | grep "Feature epic:"
-
-# Stage
-gt convoy stage <epic-id>
-
-# Review the wave plan, then launch
-gt convoy launch <convoy-id>
+gt sling shiny YOUR_RIG --var feature="edi-042" --var assignee="edinsights_ui/crew/claudio"
 ```
 
-Walk away. The ConvoyManager handles the rest.
+Or sling a bead to a rig and `shiny` applies automatically via `mol-polecat-work`:
+```bash
+gt sling edi-042 YOUR_RIG
+# shiny runs automatically as part of mol-polecat-work
+```
 
 ---
 
-## The Output Structure
-
-After the pipeline completes:
-
-```
-plans/5-day-forecast/
-  01-scope/
-    context.md           ← codebase snapshot used for analysis
-    questions.md         ← synthesized P0-P3 question backlog
-    question-triage.md   ← auto vs interactive decisions
-  02-spec/
-    spec.md              ← reviewed design specification
-    spec-review.md       ← multi-model review findings
-  03-plan/
-    plan.md              ← phased implementation plan with file-level mapping
-    plan-context.md      ← deep codebase analysis
-    plan-review.md       ← 3-directional review findings
-  04-beads/
-    beads-draft.md       ← full structure before creation
-    beads-report.md      ← creation report with ID mapping
-    beads-review.md      ← bidirectional review findings
-```
-
-This is the audit trail. For any future question of "why was this built this way?" — it's all here, timestamped and attributed.
-
----
-
-## What the Pipeline Gives You That Manual Bead Creation Doesn't
+## Pipeline vs Manual: What You Gain
 
 | | Manual (Modules 1-4) | Pipeline (Module 5) |
 |--|---|---|
-| Scope analysis | You figure it out | 3x3 LLM matrix, P0-P3 priority |
-| Spec quality | As good as your first draft | Multi-model reviewed, completeness-checked |
-| Codebase awareness | You read the code | 3 parallel agents analyze patterns, integration points, conventions |
-| Bead descriptions | You write them | Generated from plan + 3 quality passes |
-| Dependency graph | You reason about it | Topological sort from explicit plan phases |
-| False blockers | Easy to miss | Automated review pass removes them |
-| Vague criteria | Common | Clarity pass flags and fixes vague language |
+| Spec quality | Your first draft | 6-leg PRD review, you answer gaps |
+| Implementation plan | You reason about it | 6-dimensional parallel design |
+| Plan validation | Your gut | 5-leg review (completeness, risk, scope) |
+| Bead descriptions | You write them | Generated from approved plan |
+| Dependency graph | You declare it | Agent computes from plan phases |
+| Polecat workflow | raw bead | structured: design→implement→review→test→submit |
+| Human time required | High (write everything) | Low (answer 2 gates) |
 
 ---
 
 ## 📝 Key Commands Learned
 
 ```bash
-gt crew start claudio                   # start crew session
-gt crew at claudio                      # attach terminal
-gt formula list                         # see available formulas
-gt sling spec-workflow RIG/crew/name \  # full spec pipeline
-  --var feature="X" --var brief="Y"
-gt sling plan-workflow RIG/crew/name \  # plan pipeline
-  --var feature="X"
-gt sling beads-workflow RIG/crew/name \ # beads pipeline
-  --var feature="X"
+gt crew start claudio          # start crew session
+gt crew at claudio             # attach to it
+gt formula list                # see all available formulas
+gt sling mol-idea-to-plan YOUR_RIG/crew/claudio \
+  --var problem="..." \
+  --var context="..."          # run the full design pipeline
+gt sling shiny YOUR_RIG \
+  --var feature="X"            # run shiny directly on a bead
+gt convoy -i                   # interactive convoy monitoring
 ```
 
 ---

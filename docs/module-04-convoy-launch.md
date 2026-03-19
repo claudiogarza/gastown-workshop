@@ -1,6 +1,6 @@
 # Module 4: Convoy Launch — Stage, Validate, Launch
 
-> **Goal:** Use the proper `gt convoy stage → launch` flow. Understand what staging gives you that direct slinging doesn't.
+> **Goal:** Use the proper `gt convoy stage → launch` flow. See what wave computation actually looks like, and understand what staging gives you that direct slinging doesn't.
 
 > **All commands run from:** `~/gt/YOUR_RIG/crew/claudio`
 
@@ -10,27 +10,28 @@
 
 When you `gt sling` directly without staging, you're flying blind:
 
-- No dep graph validation (circular deps go undetected until runtime confusion)
+- No dep graph validation (circular deps go undetected until runtime)
 - No wave preview (you don't know what will dispatch when)
 - No pre-flight abort (work starts immediately, can't cancel)
 
-For small 2-3 bead chains, this is fine. For anything larger, you want the pre-flight.
+For small 2-3 bead chains this is fine. For anything larger, use the pre-flight.
 
 ---
 
 ## Stage → Launch: The Two-Phase Flow
 
 ```
-gt convoy stage <epic-id>
+gt convoy stage <bead-id-list or epic-id>
          │
          ▼
-   STAGED status (INERT — nothing dispatches)
+   STAGED (status: staged_ready)
+   INERT — nothing dispatches yet
    Shows:
-     ✓ dependency validation
-     ✓ wave computation
-     ✓ warnings (parked rigs, orphans, etc.)
+     ✓ dependency tree
+     ✓ wave computation (Kahn's topological sort)
+     ✓ parallelism analysis
          │
-    user reviews
+    you review it
          │
          ▼
 gt convoy launch <convoy-id>
@@ -38,16 +39,60 @@ gt convoy launch <convoy-id>
          ▼
    OPEN status
    Wave 1 dispatches immediately (all in parallel)
-   ConvoyManager feeds Wave 2+ automatically
+   ConvoyManager feeds Wave 2+ automatically as beads close
 ```
 
 **Staged convoys are completely inert.** The daemon skips them in both the event poll and the stranded scan. Nothing runs until you explicitly launch.
 
 ---
 
+## What `gt convoy stage` Actually Looks Like
+
+Here's real output from staging 4 beads with a dependency graph:
+
+```
+edi-0dm [task] task B - no deps (rig: edinsights_ui) [open]
+edi-6tq [task] task A - no deps (rig: edinsights_ui) [open]
+edi-77a [task] task C - needs A (rig: edinsights_ui) [open] ← blocked by: edi-6tq
+edi-qn8 [task] task D - needs A+B (rig: edinsights_ui) [open] ← blocked by: edi-0dm, edi-6tq
+
+Wave   ID       Title               Rig            Blocked By
+────────────────────────────────────────────────────────────────
+1      edi-0dm  task B - no deps    edinsights_ui  —
+1      edi-6tq  task A - no deps    edinsights_ui  —
+2      edi-77a  task C - needs A    edinsights_ui  edi-6tq
+2      edi-qn8  task D - needs A+B  edinsights_ui  edi-0dm, edi-6tq
+
+4 tasks across 2 waves (max parallelism: 2 in wave 1)
+Convoy created: hq-cv-dnxwn (status: staged_ready)
+```
+
+And the launch output:
+
+```
+Convoy launched: hq-cv-dnxwn (status: open)
+
+  Monitor: gt convoy status hq-cv-dnxwn
+
+Wave summary:
+  2 waves, 4 tasks total
+  Wave 1: 2 tasks (dispatched)
+  Wave 2: 2 tasks (pending)
+
+Dispatched (Wave 1):
+  ✓ edi-0dm  task B - no deps  (rig: edinsights_ui)
+  ✓ edi-6tq  task A - no deps  (rig: edinsights_ui)
+
+Subsequent waves will be dispatched automatically by the daemon as tasks complete.
+```
+
+Clean. You see exactly what's launching and what's waiting.
+
+---
+
 ## Setting Up: Add Tests (The Real Wave 3)
 
-Let's add a test layer to weatherly that depends on everything else:
+Let's add a test layer to weatherly that depends on everything else.
 
 ```bash
 # Unit tests for the parser (depends on models + parser)
@@ -61,13 +106,16 @@ Test cases:
 3. test_parse_invalid_nested: pass JSON with wrong nested structure, verify ValueError
 
 Use Python's unittest.TestCase. Include a sample_response fixture at the top of the file.
-
 Create tests/__init__.py (empty)." \
   --acceptance "- [ ] tests/test_parser.py exists
 - [ ] All 3 test cases present
 - [ ] python -m pytest tests/test_parser.py passes"
+```
 
-# Integration test (depends on everything)
+Note ID: `edi-008`
+
+```bash
+# Integration test (depends on full wired app)
 bd create "Add integration smoke test" \
   -t task -p P2 \
   --description "Create tests/test_integration.py with an integration test that exercises the full stack.
@@ -82,11 +130,11 @@ Verify output contains temperature and location strings." \
 - [ ] python -m pytest tests/test_integration.py passes"
 ```
 
-Note IDs: `edi-008`, `edi-009`
+Note ID: `edi-009`
 
 ---
 
-## Declare the Test Dependencies
+## Declare Dependencies
 
 ```bash
 bd dep add edi-008 edi-002   # test_parser needs models
@@ -96,73 +144,41 @@ bd dep add edi-009 edi-007   # integration test needs full wired app
 
 ---
 
-## Create an Epic to Stage
+## Stage the Convoy (No Epic Needed)
 
-For `gt convoy stage` to compute waves, you need a parent epic that owns all the work:
-
-```bash
-bd create "weatherly MVP" \
-  -t epic -p P1 \
-  --description "Complete working weatherly CLI weather dashboard"
-```
-
-Note ID: `edi-000`
-
-Then make everything a child of the epic using `--type parent-child`:
-```bash
-bd dep add edi-000 edi-002 --type parent-child
-bd dep add edi-000 edi-003 --type parent-child
-bd dep add edi-000 edi-004 --type parent-child
-bd dep add edi-000 edi-005 --type parent-child
-bd dep add edi-000 edi-006 --type parent-child
-bd dep add edi-000 edi-007 --type parent-child
-bd dep add edi-000 edi-008 --type parent-child
-bd dep add edi-000 edi-009 --type parent-child
-```
-
-> 💡 **`parent-child` vs `blocks`:** These are completely different relationship types.
-> - `parent-child` = organizational hierarchy only. Does **not** affect execution order.
-> - `blocks` (default) = execution blocker. Blocked bead cannot start until blocker closes.
->
-> The wave computation uses **only** `blocks`-type deps. Parent-child is just for grouping and display.
-
----
-
-## Stage the Convoy
+You can pass bead IDs directly to `gt convoy stage` — no need for a parent epic:
 
 ```bash
-gt convoy stage edi-000
+gt convoy stage edi-004 edi-005 edi-006 edi-007 edi-008 edi-009
 ```
 
-Expected output:
+> 💡 **You can also stage an epic** to pick up all its children:
+> ```bash
+> gt convoy stage edi-000   # stages all child tasks
+> ```
+> But passing IDs directly works too.
+
+**You'll see real output like:**
 
 ```
-🚚 Staging: weatherly MVP (edi-000)
+edi-004 [task] Add weather fetcher (rig: edinsights_ui) [open]
+edi-005 [task] Add terminal display (rig: edinsights_ui) [open]
+edi-006 [task] Add CLI argument parser (rig: edinsights_ui) [open]
+edi-007 [task] Wire weatherly together (rig: edinsights_ui) [open] ← blocked by: edi-003, edi-004, edi-005, edi-006
+edi-008 [task] Add parser unit tests (rig: edinsights_ui) [open] ← blocked by: edi-002, edi-003
+edi-009 [task] Add integration smoke test (rig: edinsights_ui) [open] ← blocked by: edi-007
 
-Dependency Analysis:
-  ✓ No circular dependencies detected
-  ✓ All rigs available
-  ✓ 9 beads analyzed
+Wave   ID       Title                        Rig            Blocked By
+─────────────────────────────────────────────────────────────────────────────
+1      edi-004  Add weather fetcher           edinsights_ui  —
+1      edi-005  Add terminal display          edinsights_ui  —
+1      edi-006  Add CLI argument parser       edinsights_ui  —
+2      edi-007  Wire weatherly together       edinsights_ui  edi-003..006
+2      edi-008  Add parser unit tests         edinsights_ui  edi-002, edi-003
+3      edi-009  Add integration smoke test    edinsights_ui  edi-007
 
-Wave Plan:
-  Wave 1 (3 tasks — dispatch on launch):
-    ● edi-002: Add WeatherData dataclass
-    ● edi-004: Add weather fetcher
-    ● edi-005: Add terminal display
-    ● edi-006: Add CLI argument parser
-                                            ← edi-003 blocked by edi-002
-
-  Wave 2 (2 tasks — dispatch when Wave 1 resolves):
-    ● edi-003: Add weather data parser      ← unblocked when edi-002 closes
-    ● edi-008: Add parser unit tests        ← unblocked when edi-002+003 close
-
-  Wave 3 (2 tasks — dispatch when Wave 2 resolves):
-    ● edi-007: Wire weatherly together      ← unblocked when edi-003-006 close
-    ● edi-009: Add integration smoke test   ← unblocked when edi-007 closes
-
-Convoy: hq-cv-wxyz (staged:ready)
-
-Launch when ready: gt convoy launch hq-cv-wxyz
+6 tasks across 3 waves (max parallelism: 3 in wave 1)
+Convoy created: hq-cv-wxyz (status: staged_ready)
 ```
 
 ---
@@ -170,26 +186,47 @@ Launch when ready: gt convoy launch hq-cv-wxyz
 ## Reading the Wave Plan
 
 ```
-WAVE 1: The starting gun
-┌─────────────────────────────────────────────────────┐
-│  edi-002 (models)                                    │ ─┐
-│  edi-004 (fetcher)                                   │  │ All parallel
-│  edi-005 (display)                                   │  │
-│  edi-006 (cli)                                       │ ─┘
-└─────────────────────────────────────────────────────┘
-                         │ closes trigger...
-WAVE 2: Dependencies satisfied
-┌─────────────────────────────────────────────────────┐
-│  edi-003 (parser)     ← needs edi-002               │ ─┐ Parallel
-│  edi-008 (unit tests) ← needs edi-002 + edi-003     │ ─┘
-└─────────────────────────────────────────────────────┘
-                         │ closes trigger...
-WAVE 3: Final integration
-┌─────────────────────────────────────────────────────┐
-│  edi-007 (main.py)    ← needs edi-003-006            │ ─┐ Parallel
-│  edi-009 (int. tests) ← needs edi-007                │ ─┘
-└─────────────────────────────────────────────────────┘
+WAVE 1 — dispatch immediately on launch (all parallel)
+  edi-004  Add weather fetcher         ──┐
+  edi-005  Add terminal display          │  all at once
+  edi-006  Add CLI argument parser     ──┘
+
+WAVE 2 — dispatch as Wave 1 beads close
+  edi-007  Wire weatherly together      ← waits for 003+004+005+006
+  edi-008  Add parser unit tests        ← waits for 002+003
+
+WAVE 3 — dispatch when Wave 2 resolves
+  edi-009  Add integration smoke test   ← waits for 007
 ```
+
+**This wave plan is telling you:**
+- 3 polecats will spin up immediately on launch
+- edi-007 unblocks when all 4 of its blockers close (edi-003 from Module 2 + the three Wave 1 beads)
+- edi-008 may run in parallel with edi-007 if edi-002 and edi-003 close first
+- edi-009 can't start until the full app is wired
+
+---
+
+## The Staging Safety Net
+
+Imagine you stage and see a problem:
+
+```
+⚠ WARNING: edi-008 blocked by edi-003 but edi-003 is not in the staged set
+   — dependency on out-of-scope bead may cause edi-008 to never unblock
+```
+
+You can fix the dep, then re-stage:
+
+```bash
+# Fix the issue
+bd dep add edi-008 edi-003
+
+# Re-stage (creates a new staged convoy)
+gt convoy stage edi-004 edi-005 edi-006 edi-007 edi-008 edi-009
+```
+
+Nothing ran, nothing broke — you caught it in the pre-flight.
 
 ---
 
@@ -199,24 +236,24 @@ WAVE 3: Final integration
 gt convoy launch hq-cv-wxyz
 ```
 
-Wave 1 dispatches immediately — 4 polecats spawn in parallel. You walk away. The ConvoyManager handles the rest.
+Wave 1 dispatches immediately — 3 polecats spin up in parallel. Walk away. The ConvoyManager handles the rest.
 
 ---
 
 ## Monitor Progress
 
 ```bash
-# Overall progress
+# Overall convoy progress
 gt convoy status hq-cv-wxyz
 
-# Real-time feed
+# Interactive monitoring (updates automatically)
+gt convoy -i
+
+# Real-time feed of all events
 gt feed
 
-# Who's running (positional arg, not --rig flag)
+# Who's running right now
 gt polecat list YOUR_RIG
-
-# Peek at a specific polecat (full address required)
-gt peek YOUR_RIG/furiosa
 
 # Rig-level view
 gt rig status YOUR_RIG
@@ -227,53 +264,47 @@ gt rig status YOUR_RIG
 ## After It Lands
 
 ```bash
-# Check everything merged
-git log --oneline -10
+# Check all commits with full attribution
+git log --format="%s | %an" -15
 
-# All attributions
-git log --format="%s | Author: %an" -10
+# All polecat work history
+bd audit --actor=YOUR_RIG/polecats/*
 
-# Bead audit
-bd audit --actor=YOUR_RIG/polecats/* | head -20
-
-# Polecat performance
+# Performance stats
 bd stats --actor=YOUR_RIG/polecats/* --metric=cycle-time
 ```
 
-You'll see every commit attributed to the specific polecat that wrote it. Five different polecats, all traceable.
-
 ---
 
-## ⚠️ The Staged Convoy Safety Net
+## ⚠️ One `bd dep add` Gotcha: Parent-Child Direction
 
-Imagine you stage, see warnings, and want to fix before launching:
+When linking tasks to epics with `parent-child`, the direction matters and is easy to get backwards.
 
+**The correct direction:**
 ```bash
-gt convoy stage edi-000
-# Output: "⚠ WARNING: edi-008 has no clear blocker on edi-003 — may start before parser exists"
-
-# Fix the dep
-bd dep add edi-008 edi-003
-
-# Re-stage with updated graph
-gt convoy stage edi-000
-# Output: "✓ No issues"
-
-gt convoy launch hq-cv-wxyz
+bd dep add <child-id> <parent-id> --type parent-child
+# "child depends on parent" = child lives under parent
 ```
 
-This is exactly what staging is for — catching issues before any polecat burns tokens on broken work.
+**A quick check:**
+```bash
+bd show <epic-id>
+```
+Should show `CHILDREN ↳` pointing to the tasks. If you see `PARENT ↑` there, you've got it backwards.
+
+> 💡 **`parent-child` doesn't affect execution order.** It's purely organizational — for grouping, display, and `gt convoy stage <epic-id>` discovery. Only `blocks` deps control wave order.
 
 ---
 
 ## 📝 Key Commands Learned
 
 ```bash
-gt convoy stage <epic-id>       # validate + wave plan (INERT)
-gt convoy launch <convoy-id>    # dispatch Wave 1, daemon feeds rest
-gt rig status YOUR_RIG          # rig-level view of all workers
+gt convoy stage <id> [id...]   # validate dep graph + wave plan (INERT)
+gt convoy launch <convoy-id>   # dispatch Wave 1, daemon feeds rest
+gt convoy -i                   # interactive convoy monitoring
+gt rig status YOUR_RIG         # rig-level view of all workers
 bd audit --actor=RIG/polecats/* # full attribution history
-bd stats --actor=...            # performance metrics
+bd stats --actor=...           # performance metrics
 ```
 
 ---

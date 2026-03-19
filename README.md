@@ -41,8 +41,15 @@ You'll build **weatherly** — a CLI weather dashboard in Python. It's small eno
 | [2. Dependency Chain](docs/module-02-dependency-chain.md) | B needs A | Sequential work |
 | [3. Parallel Lanes](docs/module-03-parallel-lanes.md) | A, B, C at once | Concurrent work |
 | [4. Convoy Launch](docs/module-04-convoy-launch.md) | Stage → launch → watch | Automated dispatch |
-| [5. Full Pipeline](docs/module-05-full-pipeline.md) | spec → plan → beads → swarm | The whole thing |
+| [5. Full Pipeline](docs/module-05-full-pipeline.md) | `mol-idea-to-plan` + `shiny` | Design pipeline + structured execution |
 | [6. Recovery](docs/module-06-recovery.md) | When it breaks | Stalled polecats, zombies |
+
+## Appendices
+
+| Appendix | Contents |
+|----------|----------|
+| [A. Quick Reference](docs/appendix-quick-reference.md) | All key commands in one place |
+| [C. Common Errors](docs/appendix-common-errors.md) | Error messages + fixes |
 
 ## Prerequisites
 

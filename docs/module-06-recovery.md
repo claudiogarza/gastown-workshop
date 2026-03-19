@@ -6,9 +6,7 @@
 
 ## The Reality
 
-Polecats crash. Sessions time out. Dolt gets unhappy. The Refinery hits a merge conflict. Networks drop. Claude gets confused and loops.
-
-Gas Town is designed for this. Most failures are handled automatically. But you need to know the difference between "Gas Town is handling it" and "you need to intervene."
+Polecats crash. Sessions time out. Dolt hiccups. The Refinery hits a merge conflict. Gas Town is designed for this — most failures recover automatically. Your job is to know the difference between "wait, Gas Town is handling it" and "I need to step in."
 
 ---
 
@@ -17,198 +15,198 @@ Gas Town is designed for this. Most failures are handled automatically. But you 
 ```
 Working     ← normal, doing its job
     │
-    │  session crashes, never respawned
+    │  session crashes/compacts — Witness sees no output
     ▼
 Stalled     ← supposed to be working, isn't
-             (Witness detects and nudges/respawns)
+             Witness detects: nudges first, then respawns
+             You see: polecat "working" but gt peek shows nothing
 
 Working     ← normal
     │
     │  gt done called, cleanup failed
     ▼
-Zombie      ← work done, cleanup stuck
-             (Witness/Deacon clean these up)
+Zombie      ← work done, session should be dead but isn't
+             Witness/Deacon clean these up on patrol
 ```
 
-**There is no "idle" state.** If a polecat exists but isn't working, something is wrong.
+> ⚠️ **There is no "idle" state.** A non-working polecat is in a failure state, not resting. Call it what it is.
 
 ---
 
 ## What Recovers Automatically
 
-The Witness and Deacon handle most failure cases without you:
+| Failure | Who detects it | Auto-recovery |
+|---------|---------------|---------------|
+| Session crash (no work lost) | Witness | Respawns session; polecat resumes from sandbox |
+| Stalled >30 min | Deacon (GUPP check) | Notifies Witness; Witness nudges or respawns |
+| Dead polecat with hooked work | Deacon (3-min heartbeat) | Auto-restarts session |
+| Mass death (>3 in 30s) | Deacon | Sends alert, escalates to Mayor |
+| Zombie cleanup | Witness patrol | Returns slot to pool |
+| Merge conflict | Refinery | Spawns fresh polecat to re-implement on new baseline |
+| Bead stuck in `hooked` >1h | Deacon | Unhooks → available for redispatch |
+| Stale bead stuck `in_progress` | Deacon `stale-hooks` | Releases back to open |
 
-| Failure | Detected By | Auto-Recovery |
-|---------|------------|---------------|
-| Session crash (no work lost) | Witness | Respawns session, polecat resumes from sandbox |
-| Stalled polecat (stuck >30min) | Deacon (GUPP check) | Witness notified, Witness nudges or respawns |
-| Dead polecat with hooked work | Deacon (crash detection) | Auto-restart; mass death detection if >3 in 30s |
-| Orphaned work (dead polecat, bead still hooked) | Deacon | Sends to Deacon for redispatch |
-| Zombie polecat | Witness on patrol | Cleans up, slot returned to pool |
-| Merge conflict in Refinery | Refinery | Spawns FRESH polecat to re-implement on new baseline |
-| Stale bead stuck in `hooked` >1h | Deacon | Unhooks it → available for redispatch |
-
-**Most of the time, you don't need to do anything.** Watch `gt feed` and let Gas Town recover.
+**Most of the time: wait and watch `gt feed`.** The system recovers itself.
 
 ---
 
-## When You Need to Intervene
+## When to Intervene
 
-These require manual action:
-
-### 1. Stalled Polecat That Isn't Recovering
+### 1. Polecat Stuck (Not Just Slow)
 
 ```bash
-# Diagnose
-gt polecat list YOUR_RIG            # see status (positional, no --rig flag)
-gt peek YOUR_RIG/furiosa            # full address: rig/name
-gt feed                             # check recent activity
+# Check status
+gt polecat list YOUR_RIG
 
-# If it's genuinely stuck (not just slow):
-gt polecat nuke furiosa             # destroy it (use actual polecat name)
-gt sling <bead-id> YOUR_RIG         # re-sling the bead
+# See what it's doing (or not doing)
+gt peek YOUR_RIG/furiosa
+
+# If no output for 15+ minutes and Witness hasn't nudged it:
+gt polecat nuke furiosa      # destroy it
+bd update <bead-id> --status=open  # reset bead if needed
+gt sling <bead-id> YOUR_RIG  # re-sling
 ```
 
-**How to tell "stuck" from "slow":** `gt peek Toast` shows no output for 10+ minutes, and the bead has been `in_progress` for an unusually long time. Agents working on complex tasks can be quiet for 3-5 minutes. Quiet for 15+ is concerning.
+> 💡 **"Stuck" vs "slow":** `gt peek` shows no output for 10+ minutes, AND `bd show <bead-id>` shows it's been `in_progress` an unreasonably long time. Normal tasks take 1-5 minutes. Complex tasks can take 10-15. 20+ with no output = probably stuck.
 
-### 2. Bead Stuck in `hooked` State After Polecat Is Gone
+### 2. Bead Orphaned (Polecat Gone, Bead Still Hooked)
 
 ```bash
-# Find orphaned beads
-gt orphans
-
-# Reset the bead
-bd update <bead-id> --status=open
-
-# Re-sling
-gt sling <bead-id> YOUR_RIG
+gt orphans                     # find beads with dead owners
+bd update <id> --status=open   # reset to unblocked
+gt sling <id> YOUR_RIG         # re-dispatch
 ```
 
-### 3. Convoy Stranded (work queued, nothing running)
+### 3. Convoy Stranded (Work Queued, Nothing Running)
 
 ```bash
-# Find stranded convoys
-gt convoy stranded
-
-# Check what's blocking
-gt convoy status hq-cv-xyz
-
-# If it's a dep issue
-bd dep cycles                 # check for circular deps
-bd show <bead-id>             # inspect individual blockers
+gt convoy stranded             # find stalled convoys
+gt convoy status hq-cv-xyz     # inspect the specific convoy
+bd show <bead-id>              # check blocker statuses
+bd dep cycles                  # any circular deps?
 ```
 
 ### 4. Dolt Issues
 
-If `bd` commands hang, timeout, or give "connection refused":
+If `bd` commands hang or timeout:
 
 ```bash
 # Diagnose FIRST (don't just restart)
-kill -QUIT $(cat ~/gt/.dolt-data/dolt.pid)   # dumps goroutine trace
-gt dolt status                                 # check health
+kill -QUIT $(cat ~/gt/.dolt-data/dolt.pid)   # dumps goroutine trace to stderr log
+gt dolt status                                 # check connectivity
 
-# Then escalate
+# Escalate with evidence
 gt escalate -s HIGH "Dolt: <describe symptom>"
 
-# Only if completely unreachable
+# Only if completely unreachable:
 gt dolt stop && gt dolt start
 ```
 
-**⚠️ Never `rm -rf` the Dolt data directory.** Use `gt dolt cleanup` instead.
+**Never `rm -rf` the Dolt data directory.** Use `gt dolt cleanup` for orphan databases.
 
 ---
 
-## Hands-On: Inducing and Recovering a Stall
+## Hands-On: Watching the Witness Work
 
-Let's intentionally trigger a recovery scenario to practice:
+Let's observe the automatic recovery system without breaking anything.
 
-### Scenario: The Overthinking Polecat
-
-Create a bead designed to take a while:
+### Watch Your Town's Patrol Activity
 
 ```bash
-bd create "Add weather data caching layer" \
+gt feed    # watch events flow by in real-time
+gt log     # recent town activity log
+```
+
+Look for events like:
+```
+[21:14:02] witness nudged edinsights_ui/furiosa (idle 8m)
+[21:14:32] furiosa resumed work on edi-042
+```
+
+The Witness polls polecats every ~3 minutes. If a polecat is idle without having called `gt done`, it gets nudged.
+
+### Check What the Daemon is Doing
+
+```bash
+gt boot status
+```
+
+This shows the last Boot triage result — what the Deacon's watchdog found on its most recent health check:
+
+```
+Boot Status:
+  Last run: 2 minutes ago
+  Action: nothing (Deacon healthy)
+  Deacon: alive, active output
+```
+
+### Simulate a Slow Task
+
+Create a bead with a long but realistic implementation:
+
+```bash
+cd ~/gt/YOUR_RIG/crew/claudio
+bd create "Add request retry logic to fetcher" \
   -t task -p P3 \
-  --description "Add a simple file-based cache to weatherly that stores the last API response.
-  
-Cache should:
-- Store response in ~/.weatherly/cache.json
-- Include timestamp
-- Expire after 10 minutes
-- Fall back to live API if cache miss or expired
+  --description "Add exponential backoff retry to weatherly/fetcher.py.
 
-Create weatherly/cache.py with load_cache() and save_cache() functions." \
-  --acceptance "- [ ] weatherly/cache.py exists
-- [ ] Cache reads/writes to ~/.weatherly/cache.json
-- [ ] Expiry logic works correctly
-- [ ] Falls back gracefully on cache miss"
-```
+On requests.exceptions.Timeout or requests.exceptions.ConnectionError:
+- Retry up to 3 times
+- Wait 1s, then 2s, then 4s between retries (exponential backoff)
+- Log each retry attempt to stderr
+- Raise the original exception if all retries fail
 
-Sling it:
-```bash
+Use a simple loop, not a library like tenacity." \
+  --acceptance "- [ ] Retries 3 times on timeout/connection error
+- [ ] Wait times are 1s, 2s, 4s (exponential)
+- [ ] Logs retry attempts to stderr
+- [ ] Raises original exception after all retries fail
+- [ ] Unit test verifies retry behavior with mocked requests"
+
 gt sling <bead-id> YOUR_RIG
 ```
 
-Now watch it for a bit:
+Watch it work:
 ```bash
-gt feed
-gt peek <polecat-name>
+gt polecat list YOUR_RIG           # see it's working
+gt peek YOUR_RIG/furiosa           # watch the shiny steps
+gt convoy -i                       # if you have a convoy tracking it
 ```
 
-If you want to practice forced recovery:
+After completion:
 ```bash
-# Wait until it's in_progress, then nuke it
-gt polecat nuke <name>
-
-# Check what happened to the bead
-bd show <bead-id>    # should be hooked or open after Witness recovery
-
-# Re-sling if needed
-gt sling <bead-id> YOUR_RIG
+git log --format="%an: %s" -3     # see attribution
+bd show <bead-id>                  # see the close reason
 ```
 
 ---
 
-## The Escalation System
+## The Merge Conflict Path
 
-When agents encounter something they can't resolve:
+When a polecat finishes but its branch conflicts with main:
 
-```bash
-# From any agent (polecat, witness, deacon)
-gt escalate -s HIGH "Description of the issue"
-gt escalate -s CRITICAL "Urgent — complete outage"
+```
+polecat pushes branch
+        │
+        ▼
+Refinery picks up MR bead
+        │
+        ▼
+   tries to rebase
+        │
+   CONFLICT DETECTED
+        │
+        ▼
+Refinery spawns FRESH polecat
+  → same bead description
+  → fresh worktree on updated main
+  → re-implements from scratch
+        │
+        ▼
+Refinery merges fresh work
 ```
 
-Levels: `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`
-
-- `HIGH` → Mayor notified
-- `CRITICAL` → Mayor + Overseer (human) notified
-
-You can also check for escalations:
-```bash
-gt mail                        # check your mail (if you're Mayor)
-gt broadcast "status check"    # nudge all workers
-```
-
----
-
-## Health Checks
-
-Run `gt doctor` regularly. Aim for 0 warnings, 0 failures:
-
-```bash
-gt doctor
-```
-
-Common warnings and fixes:
-```bash
-gt doctor --fix    # auto-fixes common issues
-```
-
-**Periodic check habit:**
-```bash
-gt doctor && gt status && gt convoy list
-```
+**You don't intervene.** The Refinery handles it. The original bead description is the source of truth — this is why clear descriptions matter. A vague description = a re-implementation that might drift.
 
 ---
 
@@ -218,72 +216,58 @@ When something seems wrong:
 
 ```
 1. gt status
-   ↓ (see overall health)
+   ↓ (see overall health — are Witness/Refinery running?)
+
 2. gt polecat list YOUR_RIG
-   ↓ (see what's running — positional arg, no --rig)
-3. gt convoy list
-   ↓ (see what's in flight)
-4. gt feed (or gt log)
-   ↓ (see recent events)
-5. gt peek <polecat-name>
-   ↓ (see what specific agent is doing)
-6. bd show <bead-id>
-   ↓ (inspect the work item)
-7. gt doctor
-   ↓ (run health checks)
-8. gt escalate (if needed)
+   ↓ (see who's running, who's not)
+
+3. gt feed
+   ↓ (recent events — did things move recently?)
+
+4. gt peek YOUR_RIG/polecat-name
+   ↓ (what is that specific polecat doing?)
+
+5. bd show <bead-id>
+   ↓ (is the bead in the right state?)
+
+6. gt convoy status <convoy-id>
+   ↓ (is the convoy stuck? any beads still open?)
+
+7. bd dep cycles
+   ↓ (any circular deps blocking dispatch?)
+
+8. gt doctor
+   ↓ (system-level health check)
+
+9. gt escalate -s HIGH "..."
+   ↓ (if you can't fix it — Mayor gets involved)
 ```
-
----
-
-## Merge Conflicts: The Refinery Handles It
-
-When a polecat's branch conflicts with main:
-
-```
-Polecat finishes → gt done → pushes branch → Refinery picks up MR
-                                                      │
-                                              tries to rebase
-                                                      │
-                                              CONFLICT!
-                                                      │
-                                    spawns FRESH polecat to re-implement
-                                    on updated main baseline
-                                              │
-                                    fresh polecat has full context of original bead
-                                    re-implements on clean base
-                                              │
-                                    Refinery merges fresh work
-```
-
-**You don't intervene.** The Refinery handles conflicts by spawning a fresh implementation. The original bead description is the source of truth — the new polecat re-implements from scratch on the new baseline.
-
-This is why **clear, self-contained bead descriptions** matter so much. If the description is ambiguous, re-implementation produces something subtly different.
 
 ---
 
 ## 📝 Recovery Command Reference
 
 ```bash
-# Diagnosis
-gt status                              # overall health
-gt polecat list YOUR_RIG               # active polecats (positional, no --rig)
-gt peek YOUR_RIG/polecat-name          # polecat output (full address required)
-gt feed                                # real-time activity
-gt orphans                             # beads with dead owners
-gt convoy stranded                     # stalled convoys
-gt doctor                              # health checks
+# Visibility
+gt status                        # overall health
+gt polecat list YOUR_RIG         # active polecats (positional, no --rig)
+gt peek YOUR_RIG/name            # polecat output (full address required)
+gt feed                          # real-time event stream
+gt log                           # town activity log
+gt orphans                       # beads with dead owners
+gt convoy stranded               # stalled convoys
+gt doctor                        # full health check
 
 # Intervention
-gt polecat nuke <name>                 # destroy a polecat
-bd update <id> --status=open           # reset a stuck bead
-gt sling <id> YOUR_RIG                 # re-dispatch
-gt escalate -s HIGH "..."              # escalate to Mayor
+gt polecat nuke <name>           # destroy a stuck polecat
+bd update <id> --status=open     # reset a stuck bead
+gt sling <id> YOUR_RIG           # re-dispatch
+gt escalate -s HIGH "..."        # escalate to Mayor
 
-# Dolt (careful!)
-gt dolt status                         # check DB health
-gt dolt cleanup                        # remove orphan test DBs (safe)
-gt dolt stop && gt dolt start          # restart (last resort, diagnose first)
+# Dolt
+gt dolt status                   # check DB health
+gt dolt cleanup                  # remove orphan test DBs (safe)
+gt dolt stop && gt dolt start    # restart (diagnose first)
 ```
 
 ---
@@ -291,16 +275,18 @@ gt dolt stop && gt dolt start          # restart (last resort, diagnose first)
 ## 🎓 You've Completed the Workshop
 
 You now know how to:
-- ✅ Think in Gas Town's mental model
-- ✅ Create beads with proper hierarchy and acceptance criteria
-- ✅ Build dependency chains and parallel work lanes
-- ✅ Use convoy stage → launch for validated dispatch
-- ✅ Run the full spec → plan → beads → swarm pipeline in a crew session
+- ✅ Think in Gas Town's mental model (agents, beads, convoys, molecules, waves)
+- ✅ Create beads with proper hierarchy, acceptance criteria, and deps
+- ✅ Build dependency chains that the ConvoyManager auto-dispatches
+- ✅ Launch parallel work lanes via convoy stage → launch
+- ✅ Run the full `mol-idea-to-plan` → `shiny` pipeline in a crew session
 - ✅ Diagnose and recover from failure states
 
-**The key insight to take away:**
+**The insight to take away:**
 
-Gas Town isn't just a task tracker. It's a **work ledger** — every action attributed, every bead timestamped, every polecat with a track record. The dependency graph you design IS the parallelism you get. The quality of your bead descriptions IS the quality of what polecats build.
+Gas Town is a **work ledger**, not just a task runner. Every action is attributed, every bead timestamped, every polecat with a track record. The dependency graph you declare IS the parallelism you get. The quality of your bead descriptions IS the quality of what polecats build.
+
+Six months from now: `git log --author="YOUR_RIG/polecats"` shows everything your agents ever built. `bd audit --actor=YOUR_RIG/polecats/*` shows how long it took and what they closed. That's the point.
 
 Build thoughtfully. Launch confidently. Walk away while the swarm works.
 
@@ -308,8 +294,8 @@ Build thoughtfully. Launch confidently. Walk away while the swarm works.
 
 ---
 
-## Appendices
+## Appendix
 
 - [A. Quick Reference Card](appendix-quick-reference.md)
-- [B. Bead Quality Rules](appendix-bead-quality.md)
-- [C. Full gt CLI Reference](appendix-gt-reference.md)
+- [B. Bead Quality Rules](appendix-bead-quality.md) *(coming soon)*
+- [C. Common Errors & Fixes](appendix-common-errors.md)
