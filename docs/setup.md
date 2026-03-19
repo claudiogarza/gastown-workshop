@@ -139,20 +139,24 @@ You should get a list of open beads (possibly some pre-existing ones — that's 
 
 ---
 
-## 8. Install the gt-toolkit Formulas (For Module 5)
+## 8. Verify Native Formulas Are Available
 
-Do this now so Module 5 is ready when you get there:
+Gas Town ships with the formulas used in this workshop — no extra installation needed.
 
 ```bash
-# Clone if you haven't already
-git clone https://github.com/Xexr/gt-toolkit.git ~/source/gt-toolkit
-
-# Install formulas to your town
-cp ~/source/gt-toolkit/formulas/*.formula.toml ~/gt/.beads/formulas/
-
-# Verify
 gt formula list
 ```
+
+You should see (among others):
+```
+mol-idea-to-plan   Full pipeline from vague idea to approved, beads-ready plan
+mol-polecat-work   Full polecat work lifecycle from assignment through completion
+shiny              Engineer in a Box - design before you code, review before you ship
+```
+
+These are the native Gas Town formulas used in Module 5. If they're missing, you may have an older version of Gas Town — run `gt stale` to check.
+
+> 💡 **gt-toolkit (optional):** The community repo [Xexr/gt-toolkit](https://github.com/Xexr/gt-toolkit) has additional formulas including a more elaborate multi-LLM spec pipeline. It's worth exploring after you've completed this workshop, but it's not required — we use native formulas throughout.
 
 ---
 
@@ -161,6 +165,6 @@ gt formula list
 - [ ] `gt status` shows Witness + Refinery running for your rig
 - [ ] `cd ~/gt/YOUR_RIG/crew/claudio && bd ready` runs without errors
 - [ ] You know your rig name from `gt rig list`
-- [ ] `gt formula list` shows spec-workflow, plan-workflow, beads-workflow
+- [ ] `gt formula list` shows `mol-idea-to-plan` and `shiny`
 
 **→ [Module 0: The Mental Model](module-00-mental-model.md)**
