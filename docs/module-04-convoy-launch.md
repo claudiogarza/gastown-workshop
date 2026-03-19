@@ -236,7 +236,9 @@ Nothing ran, nothing broke — you caught it in the pre-flight.
 gt convoy launch hq-cv-wxyz
 ```
 
-Wave 1 dispatches immediately — 3 polecats spin up in parallel. Walk away. The ConvoyManager handles the rest.
+Wave 1 dispatches immediately — polecats spin up in parallel. Walk away. The ConvoyManager handles the rest.
+
+> ⚠️ **Don't run `gt convoy launch` twice on the same convoy.** If it gets interrupted and you re-run it, Gas Town re-stages and creates a NEW convoy tracking the same beads. Check `gt convoy list` — if you see two convoys tracking the same work, close the duplicate: `bd close hq-cv-old -r "duplicate"`. The beads will already be hooked from the first launch.
 
 ---
 

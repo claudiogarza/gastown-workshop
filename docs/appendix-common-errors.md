@@ -114,7 +114,7 @@ gt orphans                  # check if bead is orphaned
 ```
 
 ### Convoy shows `Progress: 0/0` after creation
-**Normal until a bead is slung.** The counter activates when a polecat picks up the first bead. Not a bug.
+**Normal.** The counter in `gt convoy status` doesn't reflect what `gt convoy create` says about "Tracking: N issues" — they're showing different things. The `0/0` counter activates once beads start closing. Not a bug, just confusing display.
 
 ### Bead stays in `hooked` state after polecat session ends
 **The Deacon will unhook it after 1 hour.** If you want to recover it faster:

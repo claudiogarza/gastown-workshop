@@ -116,8 +116,10 @@ Replace `YOUR_RIG_NAME` with your actual rig name from above.
 **Expected output (yours will look similar):**
 ```
 Target is rig 'YOUR_RIG', spawning fresh polecat...
-Reusing idle polecat: furiosa
-✓ Polecat furiosa reused (idle → working, session start deferred)
+Created polecat: furiosa           ← if no idle polecats available
+  (or)
+Reusing idle polecat: furiosa      ← if an idle polecat exists
+✓ Polecat furiosa spawned (or reused)
 🎯 Slinging edi-001 to YOUR_RIG/polecats/furiosa...
 ○ Already tracked by convoy hq-cv-abc
   Auto-applying mol-polecat-work for polecat work...
