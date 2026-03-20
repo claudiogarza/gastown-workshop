@@ -146,9 +146,8 @@ Create a bead with a long but realistic implementation:
 
 ```bash
 cd ~/gt/YOUR_RIG/crew/claudio
-bd create "Add request retry logic to fetcher" \
-  -t task -p P3 \
-  --description "Add exponential backoff retry to weatherly/fetcher.py.
+bd create "Add request retry logic to fetcher" -t task -p P3 --stdin << 'EOF'
+Add exponential backoff retry to weatherly/fetcher.py.
 
 On requests.exceptions.Timeout or requests.exceptions.ConnectionError:
 - Retry up to 3 times
@@ -156,8 +155,11 @@ On requests.exceptions.Timeout or requests.exceptions.ConnectionError:
 - Log each retry attempt to stderr
 - Raise the original exception if all retries fail
 
-Use a simple loop, not a library like tenacity." \
-  --acceptance "- [ ] Retries 3 times on timeout/connection error
+Use a simple loop, not a library like tenacity.
+EOF
+```
+```bash
+bd update <bead-id> --acceptance "- [ ] Retries 3 times on timeout/connection error
 - [ ] Wait times are 1s, 2s, 4s (exponential)
 - [ ] Logs retry attempts to stderr
 - [ ] Raises original exception after all retries fail

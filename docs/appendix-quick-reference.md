@@ -15,12 +15,20 @@ gt sling spec-workflow → plan-workflow → beads-workflow → gt convoy stage 
 ## Bead Operations
 
 ```bash
-# Create
+# Create — use heredoc for long descriptions (no shell escaping)
 bd create "Title" -t [epic|task|bug|chore] -p [P0-P4] \
   --parent $PARENT_ID \
   --deps "$BLOCKER1,$BLOCKER2" \
-  --description "..." \
-  --acceptance "- [ ] criterion 1\n- [ ] criterion 2"
+  --stdin << 'EOF'
+Your description here. Multiple lines, no escaping needed.
+EOF
+
+# Add acceptance criteria after creation
+bd update <id> --acceptance "- [ ] criterion 1
+- [ ] criterion 2"
+
+# Or use a file for the description
+bd create "Title" -t task -p P2 --body-file ./description.md
 
 # Inspect
 bd show <id>               # details

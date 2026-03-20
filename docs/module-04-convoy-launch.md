@@ -95,19 +95,24 @@ Clean. You see exactly what's launching and what's waiting.
 Let's add a test layer to weatherly that depends on everything else.
 
 ```bash
-# Unit tests for the parser (depends on models + parser)
-bd create "Add parser unit tests" \
-  -t task -p P2 \
-  --description "Create tests/test_parser.py with unit tests for the weather parser.
+# Unit tests for the parser
+bd create "Add parser unit tests" -t task -p P2 --stdin << 'EOF'
+Create tests/test_parser.py with unit tests for the weather parser.
 
 Test cases:
-1. test_parse_valid_response: create a minimal valid wttr.in JSON structure, verify all fields parse correctly
-2. test_parse_missing_field: pass JSON missing 'current_condition', verify ValueError raised
-3. test_parse_invalid_nested: pass JSON with wrong nested structure, verify ValueError
+1. test_parse_valid_response: create a minimal valid wttr.in JSON structure,
+   verify all fields parse correctly
+2. test_parse_missing_field: pass JSON missing 'current_condition',
+   verify ValueError raised
+3. test_parse_invalid_nested: pass JSON with wrong nested structure,
+   verify ValueError
 
-Use Python's unittest.TestCase. Include a sample_response fixture at the top of the file.
-Create tests/__init__.py (empty)." \
-  --acceptance "- [ ] tests/test_parser.py exists
+Use Python's unittest.TestCase. Include a sample_response fixture at the top.
+Create tests/__init__.py (empty).
+EOF
+```
+```bash
+bd update edi-008 --acceptance "- [ ] tests/test_parser.py exists
 - [ ] All 3 test cases present
 - [ ] python -m pytest tests/test_parser.py passes"
 ```
@@ -115,16 +120,19 @@ Create tests/__init__.py (empty)." \
 Note ID: `edi-008`
 
 ```bash
-# Integration test (depends on full wired app)
-bd create "Add integration smoke test" \
-  -t task -p P2 \
-  --description "Create tests/test_integration.py with an integration test that exercises the full stack.
+# Integration test
+bd create "Add integration smoke test" -t task -p P2 --stdin << 'EOF'
+Create tests/test_integration.py with an integration test that exercises
+the full stack.
 
 Mock the HTTP call (use unittest.mock.patch on weatherly.fetcher.requests.get).
 Return a realistic wttr.in JSON response fixture.
 Call the full chain: fetch → parse → display (capture stdout).
-Verify output contains temperature and location strings." \
-  --acceptance "- [ ] tests/test_integration.py exists
+Verify output contains temperature and location strings.
+EOF
+```
+```bash
+bd update edi-009 --acceptance "- [ ] tests/test_integration.py exists
 - [ ] HTTP call is mocked (no real network calls)
 - [ ] Full chain executes without errors
 - [ ] python -m pytest tests/test_integration.py passes"
