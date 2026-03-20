@@ -26,11 +26,11 @@ A Python file: `weatherly/config.py` — a simple configuration module that hold
 
 ## Step 1: Create the Bead
 
+Long descriptions are easier with a heredoc — no shell escaping, just natural text:
+
 ```bash
-bd create "Add weatherly config module" \
-  -t task \
-  -p P2 \
-  --description "Create weatherly/config.py with API configuration and app defaults.
+bd create "Add weatherly config module" -t task -p P2 --stdin << 'EOF'
+Create weatherly/config.py with API configuration and app defaults.
 
 File should contain:
 - API_BASE_URL = 'https://wttr.in'
@@ -39,13 +39,25 @@ File should contain:
 - REQUEST_TIMEOUT = 10 (seconds)
 - A Config dataclass with location, units, and format fields
 
-All values should be type-annotated. Add a module docstring." \
-  --acceptance "- [ ] File exists at weatherly/config.py
+All values should be type-annotated. Add a module docstring.
+EOF
+```
+
+Then add acceptance criteria separately:
+```bash
+# Use the bead ID returned above (e.g. edi-001)
+bd update edi-001 --acceptance "- [ ] File exists at weatherly/config.py
 - [ ] All constants defined with correct values and type annotations
 - [ ] Config dataclass exists with location, units, format fields
 - [ ] Module docstring present
 - [ ] No import errors (python -c 'from weatherly.config import Config')"
 ```
+
+> 💡 **Alternative:** Use `--body-file` to point at a markdown file:
+> ```bash
+> bd create "Title" -t task -p P2 --body-file ./my-description.md
+> ```
+> Great for pre-writing bead descriptions in your editor.
 
 **You'll get back something like:** `edi-001`
 
