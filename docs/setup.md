@@ -4,25 +4,38 @@
 
 ---
 
-## 1. Enable Gas Town & Install Shell Integration
+## 1. Find Your Town Root & Enable Shell Integration
 
-This is a one-time step. Without it, `GT_ROOT` and `GT_RIG` won't be set when you `cd` into a crew workspace, and commands like `gt formula list` won't work from inside your rig directories.
+First — confirm where your Gas Town town root actually is. It's not always `~/gt`:
 
 ```bash
-cd ~/gt
+gt status 2>/dev/null | head -3
+# OR look for the directory containing mayor/ and .beads/
+ls ~/gt/         # common location
+ls ~/gt/learn/   # another common location
+```
+
+The directory containing `mayor/` and `.beads/` is your town root. **Write it down** — you'll use it everywhere below as `~/gt` (substituting your actual path if different).
+
+Now enable Gas Town and install shell integration — a one-time step. Without it, `GT_ROOT` and `GT_RIG` won't be set when you `cd` into crew directories, and `gt formula list` won't find anything.
+
+```bash
+cd YOUR_TOWN_ROOT    # e.g. ~/gt or ~/gt/learn
 gt enable
 gt shell install
-source ~/.zshrc    # activate immediately (or open a new terminal)
+source ~/.zshrc      # must be .zshrc, NOT .zshenv
 ```
+
+> ⚠️ **`source ~/.zshrc` not `~/.zshenv`** — the shell hook is added to `.zshrc`. Sourcing `.zshenv` won't activate it.
 
 Verify shell integration is active:
 ```bash
-cd ~/gt/YOUR_RIG/crew/claudio
-echo $GT_ROOT     # should show ~/gt
+cd YOUR_TOWN_ROOT/YOUR_RIG/crew/claudio
+echo $GT_ROOT     # should show your town root path
 echo $GT_RIG      # should show your rig name
 ```
 
-If those are empty, the shell hook didn't take — try opening a fresh terminal and `cd`-ing back in.
+If those are empty, open a fresh terminal and `cd` back in.
 
 ---
 
