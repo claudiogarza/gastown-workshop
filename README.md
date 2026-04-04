@@ -92,7 +92,9 @@ Recommended flow:
 
 ## Quick Start
 
-This gets you from zero to **ready for the tutorial**. Once you've done this, jump straight into the mental model. If anything here doesn't match your environment, use the full [Setup guide](docs/setup.md).
+> 🔧 **Gas Town not installed yet?** → **[Full Setup Guide →](docs/setup.md)**
+
+Assuming Gas Town is already running, this gets you wired up for the tutorial in a few steps.
 
 ```bash
 # 0. Fork this repo to your own GitHub org/account, then clone your fork
@@ -102,38 +104,28 @@ This gets you from zero to **ready for the tutorial**. Once you've done this, ju
 #   gh repo fork claudiogarza/gastown-workshop --clone --org YOUR_ORG
 #   cd gastown-workshop
 
-# 1. Go to your Gas Town root
-cd ~/gt
-
-# 2. Enable Gas Town and shell integration (one-time setup)
-gt enable
-gt shell install
-source ~/.zshrc
-
-# 3. Bring up all services
-gt up
-
-# 4. Verify everything is running
+# 1. Verify Gas Town is running
 gt status
 
-# 5. Add a rig for your fork (pick your own rig name)
+# 2. Add a rig pointing at your fork (pick your own rig name)
 # Example:
 #   gt rig add workshop git@github.com:YOUR_ORG_OR_USER/gastown-workshop.git \
 #     --upstream-url https://github.com/claudiogarza/gastown-workshop
 # If you prefer HTTPS instead of SSH, use the HTTPS clone URL for your fork.
 
-# 6. Verify the rig exists
+# 3. Verify the rig is registered
 gt rig list
 
-# 7. Verify native formulas exist
+# 4. Verify native formulas exist
 gt formula list
 ```
 
 You're ready when:
-- `gt status` shows mayor and deacon running
-- `gt rig list` shows the rig you'll use for the workshop
+- `gt status` shows Gas Town running (mayor + deacon)
+- `gt rig list` shows the rig pointing at your fork
 - `gt formula list` includes `mol-idea-to-plan` and `shiny`
-- your rig points at a repo you can push to (your fork, not the upstream workshop repo)
+
+> Not set up yet? → **[Full Setup Guide →](docs/setup.md)**
 
 **→ [Start with Module 0: The Mental Model →](docs/module-00-mental-model.md)**
 
