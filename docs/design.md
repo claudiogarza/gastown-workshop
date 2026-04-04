@@ -34,11 +34,16 @@ wttr.in supports multiple output formats:
 
 **Impact:** `DEFAULT_FORMAT = 'j1'`
 
-### 3. Units: Metric Default
+### 3. Units: Fahrenheit Default
 
-**Decision:** Metric as default, imperial as an override option. Metric is the international standard and makes `weatherly` useful worldwide out of the box.
+**Options considered:**
+- Fahrenheit only — US-centric but simple
+- Fahrenheit default + `--celsius` flag — covers everyone, zero config for US users
+- Celsius default + `--fahrenheit` flag — international standard but inconvenient for primary user base
 
-**Impact:** `DEFAULT_UNITS = 'metric'`
+**Decision:** Fahrenheit as default, `--celsius` flag to switch. The primary user (terminal-dwelling devs in the US) gets zero friction; international users have a one-flag escape hatch.
+
+**Impact:** `DEFAULT_UNITS = 'fahrenheit'`, CLI accepts `--celsius` flag
 
 ### 4. Network Timeout: 10 seconds
 
@@ -52,7 +57,7 @@ A CLI tool should fail fast if the network is unavailable. 10 seconds is:
 
 The user-facing inputs are:
 - `location` — required, the city or place to look up
-- `units` — optional, override metric/imperial
+- `units` — optional, `--celsius` flag overrides default Fahrenheit
 - `format` — optional, override the API response format
 
 These become the fields of a `Config` dataclass — a clean way to pass settings through the app without relying on global state.
@@ -116,7 +121,7 @@ Create weatherly/config.py with API configuration and app defaults.
 File should contain:
 - API_BASE_URL = 'https://wttr.in'
 - DEFAULT_FORMAT = 'j1' (JSON format)
-- DEFAULT_UNITS = 'metric'
+- DEFAULT_UNITS = 'fahrenheit'
 - REQUEST_TIMEOUT = 10 (seconds)
 - A Config dataclass with location, units, and format fields
 

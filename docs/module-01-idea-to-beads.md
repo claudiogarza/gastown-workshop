@@ -36,7 +36,7 @@ This part of the tutorial happens **inside Claude Code**, not in a regular shell
 
 ```bash
 # Open a Claude Code session in your crew workspace
-cd ~/gt/YOUR_RIG/crew/claudio
+cd ~/gt/YOUR_RIG/crew/YOUR_NAME
 claude
 ```
 
@@ -47,7 +47,9 @@ claude
 /plugin install gt-sdlc
 ```
 
-Once installed, you'll run `/gt-sdlc:brief`, `/gt-sdlc:design`, and `/gt-sdlc:plan` from inside Claude Code to generate the markdown artifacts that Gas Town will later execute. The artifacts land in `docs/` inside your crew workspace.
+Once installed, you'll run `/gt-sdlc:brief`, `/gt-sdlc:design`, and `/gt-sdlc:plan` from inside Claude Code to generate the markdown artifacts that Gas Town will later execute.
+
+> 📋 **Reference artifacts:** The repo includes canonical versions of all three documents in `docs/` — `product-brief.md`, `design.md`, and `initial-plan.bead.md`. The rest of the tutorial is built against these specific files. You're encouraged to run the plugin yourself to experience the process, but **use the reference files going forward** so the remaining modules match up.
 
 ---
 
@@ -55,35 +57,68 @@ Once installed, you'll run `/gt-sdlc:brief`, `/gt-sdlc:design`, and `/gt-sdlc:pl
 
 A brief answers: what, for who, and what does success look like. No implementation details — those belong in design.
 
-In this tutorial, you do this step **in Claude Code using the `gt-sdlc` plugin**.
-You can write it manually, but the intended workflow here is to let Claude Code
-run the interactive brief command and write the artifact for you:
+### Running the plugin
 
 ```bash
-# With the plugin (interactive dialog, then writes the file):
 /gt-sdlc:brief "a terminal weather dashboard — one command, no config"
-
-# Fast mode (skip dialog, draft from input, flag assumptions):
-/gt-sdlc:brief "a terminal weather dashboard" --yolo
 ```
 
-Either way, the output is `docs/product-brief.md`. The `weatherly` brief looks like this:
+> ⚡ **What to expect:** The plugin doesn't just write a file — it interviews you. Expect 3–5 exchanges where it asks about your motivation, scope, constraints, and success criteria. It synthesizes your answers into a structured brief, then asks you to approve before writing.
+
+### What the conversation looks like
+
+Here's a condensed version of what the `brief` interaction looks like in practice:
+
+```
+⏺ You've given me a terse phrase. Before I start asking structured questions,
+  give me the brain-dump:
+  - What moment sparked this?
+  - When you say "dashboard" — quick glance or something richer?
+  - "No config" — auto-detect location? Or reads from somewhere?
+
+❯ I want something command line I can just easily run and get the weather
+  fast and easy. Something like:
+
+  $ weatherly dallas
+  Dallas, TX — 72°F, Partly Cloudy
+  Feels like 69°F · Wind 12mph SE · Humidity 48%
+
+  Forecast:
+    Today     Partly cloudy, high 78°F
+    Tonight   Clear, low 58°F
+    Tomorrow  Sunny, high 82°F
+
+⏺ That example nails it. A few targeted gaps:
+  1. No argument behavior? Auto-detect from IP or error with usage help?
+  2. Units? Fahrenheit only, or auto-detect from locale?
+  3. Scope fences for v1?
+
+❯ No argument → location detect. Default Fahrenheit, --celsius flag.
+  V1: just the basics I described.
+
+⏺ Here's the draft: [writes docs/product-brief.md]
+```
+
+Notice the flow: **brain dump → clarifying questions → scope fences → draft → approval**. The plugin is doing product thinking with you, not for you. Every answer you give becomes a constraint that shapes decisions downstream.
+
+> 💡 **Why this matters:** If you'd said "Celsius default" here, it would cascade — the design doc, bead bodies, and test expectations all change. The brief is the root of the decision tree.
+
+### What the brief looks like
+
+The output lands in `docs/product-brief.md`. The key sections:
 
 ```markdown
 ## Vision
-A weather check that lives where you already do — one command in the terminal,
-no setup, no tabs.
-
-## The Problem
-Checking the weather is a two-second question that costs twenty. Open a browser
-tab, load weather.com, dismiss the cookie banner...
+Weather in your terminal, instantly. One command, zero config, zero context-switch.
 
 ## What It Does
-- Takes a city name and prints current conditions plus a short forecast
-- Zero configuration — no API keys, no accounts, no setup files
+- Looks up current conditions and a short forecast: weatherly dallas
+- Auto-detects your location when run with no argument: weatherly
+- Defaults to Fahrenheit; --celsius flag switches units
 
 ## Success Looks Like
-Install once, type `weatherly <city>`, get a clean answer in under a second.
+A single command returns a styled forecast in under two seconds, with no
+config file, no API key setup, and no prior run required.
 ```
 
 **Notice what's not here:** no tech stack, no library choices, no file structure. Those are design decisions, not brief decisions.
@@ -131,9 +166,9 @@ The "Impact" line is what matters. That's the literal value a bead body will cit
 |----------|---------|--------|--------|
 | Data source | OWM, WeatherAPI, wttr.in | wttr.in | `API_BASE_URL = "https://wttr.in"` |
 | Terminal rendering | plain print, ANSI, `rich` | `rich` | `rich>=13` in pyproject.toml |
-| Units default | F only, F+flag, C+flag | F default, `--celsius` flag | `Units` enum, `DEFAULT_UNITS = FAHRENHEIT` |
+| Units default | F only, F+flag, C+flag | F default, `--celsius` flag | `DEFAULT_UNITS = 'fahrenheit'` |
 | Failure mode | retry, fail-fast, cache | fail-fast | fetcher raises, main catches |
-| Module shape | 3-module, 5-module, monolith | 5-module | config / fetcher / processor / display / main |
+| Module shape | 3-module, 5-module, monolith | 5-module | config / fetcher / processor / display / cli |
 
 > 💡 **The brief constrains the design.** Zero-config → no API keys → wttr.in. The decision didn't require a long debate — the constraint made it obvious.
 
@@ -143,19 +178,20 @@ The design also produces a module layout:
 
 ```
 weatherly/
-  config.py      ← constants: API_BASE_URL, TIMEOUT, Units enum
+  config.py      ← constants: API_BASE_URL, TIMEOUT, Units enum, Config dataclass
   fetcher.py     ← HTTP GET wttr.in, returns raw dict
-  processor.py   ← parses raw dict → WeatherReport dataclass
+  processor.py   ← parses raw dict → WeatherData dataclass
   display.py     ← rich-formatted rendering
-  __main__.py    ← argparse, wires pipeline, handles errors
+  cli.py         ← argparse, wires pipeline, handles errors
 ```
 
 And a data flow:
 
 ```
-argv → __main__ → fetcher → raw dict → processor → WeatherReport → display → stdout
-                      ↓
-               config (URL, timeout, Units)
+cli.py → builds Config from args
+       → fetcher.py → raw JSON from wttr.in
+       → processor.py → structured WeatherData
+       → display.py → printed output
 ```
 
 Each module has one job. Dependencies flow one direction. This isn't aesthetic — it's what makes the bead breakdown clean.
@@ -182,20 +218,21 @@ The plan is a reviewable markdown file containing ready-to-run `bd create` comma
 
 ```bash
 bd create "Add config constants and rich dependency" -t task -p P1 --stdin << 'EOF'
-Rewrite weatherly/config.py and update pyproject.toml.
+Create weatherly/config.py and update pyproject.toml.
 
 weatherly/config.py:
   - API_BASE_URL: str = "https://wttr.in"
-  - TIMEOUT: float = 5.0
-  - class Units(Enum): FAHRENHEIT = "f"; CELSIUS = "c"
-  - DEFAULT_UNITS: Units = Units.FAHRENHEIT
+  - DEFAULT_FORMAT: str = "j1"
+  - DEFAULT_UNITS: str = "fahrenheit"
+  - REQUEST_TIMEOUT: int = 10
+  - A Config dataclass with location, units, and format fields
 
 pyproject.toml:
   - Add "rich>=13" to [project] dependencies
 EOF
 ```
 
-Every value in that heredoc — `"https://wttr.in"`, `5.0`, `Units.FAHRENHEIT` — traces back to a decision in the design doc. **The polecat doesn't invent these. You did.**
+Every value in that heredoc — `"https://wttr.in"`, `"j1"`, `"fahrenheit"` — traces back to a decision in the design doc. **The polecat doesn't invent these. You did.**
 
 ### The wave breakdown
 
@@ -204,8 +241,8 @@ The design's dependency structure maps directly to execution waves:
 ```
 Wave 1:  config.py (no deps — everyone imports from this)
 Wave 2:  fetcher.py + processor.py (parallel — both only need config)
-Wave 3:  display.py (needs WeatherReport from processor)
-Wave 4:  __main__.py (wires everything — last)
+Wave 3:  display.py (needs WeatherData from processor)
+Wave 4:  cli.py (wires everything — last)
 ```
 
 Fetcher and processor run in parallel because they never import each other — they communicate through a raw dict. That's not an accident; the design explicitly kept them decoupled so they'd parallelize cleanly.
@@ -234,7 +271,7 @@ The polecat never had to guess. Every literal value in the bead was decided by a
 
 You don't need the `gt-sdlc` plugin. The documents it produces are just markdown files — you can write them by hand. The plugin speeds up the elicitation, but the *thinking* is the same either way.
 
-What matters is that the documents exist **before** you write the first bead. Not as a formality — as a decision record. Six weeks from now when a polecat touches fetcher.py, it will read the design doc and know exactly why `TIMEOUT = 5.0` instead of 10 or 30.
+What matters is that the documents exist **before** you write the first bead. Not as a formality — as a decision record. Six weeks from now when a polecat touches fetcher.py, it will read the design doc and know exactly why `DEFAULT_UNITS = 'fahrenheit'` instead of `'metric'`.
 
 ---
 
@@ -245,7 +282,9 @@ You should now have in your repo:
 - `docs/design.md` — key decisions with concrete impacts, architecture, bead breakdown
 - `docs/initial-plan.bead.md` — ready-to-run `bd create` commands
 
-The `weatherly` repo already has these. Take a few minutes to read them before moving on — the next module executes the first bead from that plan, and understanding where it came from is the point.
+> 📋 **Using the reference files:** If your plugin output differs from the reference docs, use the reference versions from here on. Modules 2–7 expect the specific decisions, module names, and wave structure defined in these files.
+
+Take a few minutes to read them before moving on — the next module executes the first bead from that plan, and understanding where it came from is the point.
 
 ```bash
 cat docs/product-brief.md
@@ -261,7 +300,7 @@ cat docs/initial-plan.bead.md
 |---------|----------------|--------|
 | Brief | What + why | `docs/product-brief.md` |
 | Design | How + what decisions | `docs/design.md` |
-| Bead plan | What units of work | `docs/*.bead.md` |
+| Bead plan | What units of work | `docs/initial-plan.bead.md` |
 
 **Plugin commands (if installed):**
 ```bash
