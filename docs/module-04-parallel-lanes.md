@@ -1,4 +1,4 @@
-# Module 3: Parallel Lanes
+# Module 4: Parallel Lanes
 
 > **Goal:** Sling multiple independent beads simultaneously and watch them execute in parallel. Understand wave computation and when parallelism is safe.
 
@@ -270,4 +270,4 @@ Module 3: A+B+C → D (parallel Wave 1, auto-launches Wave 2)
 
 ---
 
-## Next: [Module 4 — Convoy Launch →](module-04-convoy-launch.md)
+## Next: [Module 5 — Convoy Launch →](module-05-convoy-launch.md)

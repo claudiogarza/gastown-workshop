@@ -1,4 +1,4 @@
-# Module 5: The Full Pipeline
+# Module 6: The Full Pipeline
 
 > **Goal:** Use Gas Town's native formula workflows — `mol-idea-to-plan` for design and `shiny` for implementation — instead of manually creating beads. Experience how the full pipeline works end-to-end in a crew session.
 
@@ -399,4 +399,4 @@ gt convoy -i                            # watch progress
 
 ---
 
-## Next: [Module 6 — Recovery →](module-06-recovery.md)
+## Next: [Module 7 — Recovery →](module-07-recovery.md)

@@ -1,4 +1,4 @@
-# Module 1: Your First Bead
+# Module 2: Your First Bead
 
 > **Goal:** Create one bead, sling it to a polecat, and watch the full loop from creation to closed.
 
@@ -299,4 +299,4 @@ git log --oneline      # see attributed commits
 
 ---
 
-## Next: [Module 2 — Dependency Chains →](module-02-dependency-chain.md)
+## Next: [Module 3 — Dependency Chains →](module-03-dependency-chain.md)

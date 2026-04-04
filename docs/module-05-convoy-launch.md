@@ -1,4 +1,4 @@
-# Module 4: Convoy Launch — Stage, Validate, Launch
+# Module 5: Convoy Launch — Stage, Validate, Launch
 
 > **Goal:** Use the proper `gt convoy stage → launch` flow. See what wave computation actually looks like, and understand what staging gives you that direct slinging doesn't.
 
@@ -319,4 +319,4 @@ bd stats --actor=...           # performance metrics
 
 ---
 
-## Next: [Module 5 — The Full Pipeline →](module-05-full-pipeline.md)
+## Next: [Module 6 — The Full Pipeline →](module-06-full-pipeline.md)

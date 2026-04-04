@@ -1,4 +1,4 @@
-# Module 2: Dependency Chains
+# Module 3: Dependency Chains
 
 > **Goal:** Create two beads where B can't start until A finishes. Understand how Gas Town enforces ordering without you managing it.
 
@@ -233,4 +233,4 @@ bd ready                          # see what's unblocked right now
 
 ---
 
-## Next: [Module 3 — Parallel Lanes →](module-03-parallel-lanes.md)
+## Next: [Module 4 — Parallel Lanes →](module-04-parallel-lanes.md)

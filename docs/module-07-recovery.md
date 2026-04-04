@@ -1,4 +1,4 @@
-# Module 6: When Things Break
+# Module 7: When Things Break
 
 > **Goal:** Recognize failure states and know how to recover. Understand what the Witness and Deacon do automatically, and what requires your intervention.
 

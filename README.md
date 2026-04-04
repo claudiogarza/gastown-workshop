@@ -37,12 +37,13 @@ You'll build **weatherly** — a CLI weather dashboard in Python. It's small eno
 |--------|-------|---------|
 | [Setup](docs/setup.md) | Get your town running | `gt up`, rig setup, crew workspace |
 | [0. Mental Model](docs/module-00-mental-model.md) | How Gas Town thinks | Agents, beads, convoys, molecules |
-| [1. First Bead](docs/module-01-first-bead.md) | Create → sling → done | The core loop |
-| [2. Dependency Chain](docs/module-02-dependency-chain.md) | B needs A | Sequential work |
-| [3. Parallel Lanes](docs/module-03-parallel-lanes.md) | A, B, C at once | Concurrent work |
-| [4. Convoy Launch](docs/module-04-convoy-launch.md) | Stage → launch → watch | Automated dispatch |
-| [5. Full Pipeline](docs/module-05-full-pipeline.md) | `mol-idea-to-plan` + `shiny` | Design pipeline + structured execution |
-| [6. Recovery](docs/module-06-recovery.md) | When it breaks | Stalled polecats, zombies |
+| [1. Idea to Beads](docs/module-01-idea-to-beads.md) | Brief → design → plan | The human layer before the first bead |
+| [2. First Bead](docs/module-02-first-bead.md) | Create → sling → done | The core loop |
+| [3. Dependency Chain](docs/module-03-dependency-chain.md) | B needs A | Sequential work |
+| [4. Parallel Lanes](docs/module-04-parallel-lanes.md) | A, B, C at once | Concurrent work |
+| [5. Convoy Launch](docs/module-05-convoy-launch.md) | Stage → launch → watch | Automated dispatch |
+| [6. Full Pipeline](docs/module-06-full-pipeline.md) | `mol-idea-to-plan` + `shiny` | Design pipeline + structured execution |
+| [7. Recovery](docs/module-07-recovery.md) | When it breaks | Stalled polecats, zombies |
 
 ## Appendices
 
