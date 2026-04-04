@@ -58,10 +58,33 @@ You'll build **weatherly** — a CLI weather dashboard in Python. It's small eno
 - `bd` and `gt` CLIs in your PATH
 - Claude Code authenticated (`claude --version` works)
 - A rig configured (`gt rig list` shows at least one)
+- **Your own fork of this repo** under an org or account you can push to
+
+## Repo Ownership Assumption
+
+This workshop assumes you **fork this repository into your own GitHub org or
+personal account** and do the work there.
+
+Why: the tutorial has you creating beads, running polecats, and merging code.
+That means your Refinery and polecats need push access to the repo you're using.
+If you just clone `claudiogarza/gastown-workshop`, you'll be able to read it but
+not push changes back.
+
+Recommended flow:
+
+1. Fork `claudiogarza/gastown-workshop` to your own org/account
+2. Clone **your fork**
+3. Use that clone as the repo for the workshop
+4. Let Gas Town push and merge against the fork you control
 
 ## Quick Start
 
 ```bash
+# 0. Fork this repo to your own GitHub org/account, then clone your fork
+# Example:
+#   gh repo fork claudiogarza/gastown-workshop --clone
+#   cd gastown-workshop
+
 # 1. Go to your Gas Town root
 cd ~/gt
 
@@ -73,7 +96,6 @@ gt status
 
 # 4. Start with Setup
 ```
-
 **→ [Start with Setup →](docs/setup.md)**
 
 ---
