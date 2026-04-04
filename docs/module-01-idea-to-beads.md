@@ -49,7 +49,7 @@ claude
 
 Once installed, you'll run `/gt-sdlc:brief`, `/gt-sdlc:design`, and `/gt-sdlc:plan` from inside Claude Code to generate the markdown artifacts that Gas Town will later execute.
 
-> 📋 **Reference artifacts:** The repo includes canonical versions of all three documents in `docs/` — `product-brief.md`, `design.md`, and `initial-plan.bead.md`. The rest of the tutorial is built against these specific files. You're encouraged to run the plugin yourself to experience the process, but **use the reference files going forward** so the remaining modules match up.
+> 📋 **These files live in your crew workspace, not in the repo.** The plugin writes them to `docs/` in your working directory. They're *your* artifacts — the decisions you made for your version of weatherly.
 
 ---
 
@@ -257,7 +257,7 @@ You should now have in your repo:
 - `docs/design.md` — key decisions with concrete impacts, architecture, bead breakdown
 - `docs/initial-plan.bead.md` — ready-to-run `bd create` commands
 
-> 📋 **Using the reference files:** If your plugin output differs from the reference docs, use the reference versions from here on. Modules 2–7 expect the specific decisions, module names, and wave structure defined in these files.
+> 📋 **Staying on track:** The rest of the tutorial assumes the core weatherly constraints — zero config, wttr.in, Fahrenheit default with `--celsius` flag, 5-module architecture. As long as your plugin output kept those, you're good.
 
 Take a few minutes to read them before moving on — the next module executes the first bead from that plan, and understanding where it came from is the point.
 
