@@ -107,10 +107,6 @@ Assuming Gas Town is already running, this gets you wired up for the tutorial in
 gt status
 
 # 2. Add a rig pointing at your fork (pick your own rig name)
-# SSH:
-#   gt rig add workshop git@github.com:YOUR_ORG_OR_USER/gastown-workshop.git \
-#     --upstream-url https://github.com/claudiogarza/gastown-workshop
-# HTTPS:
 #   gt rig add workshop https://github.com/YOUR_ORG_OR_USER/gastown-workshop.git \
 #     --upstream-url https://github.com/claudiogarza/gastown-workshop
 
