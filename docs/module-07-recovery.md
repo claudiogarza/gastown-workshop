@@ -303,6 +303,7 @@ Build thoughtfully. Launch confidently. Walk away while the swarm works.
 - [Daemon/Boot/Deacon Watchdog Chain](https://docs.gastownhall.ai/design/watchdog-chain/) — how automatic health monitoring works
 - [Escalation System Design](https://docs.gastownhall.ai/design/escalation-system/) — what happens when you `gt escalate`
 - [Gas Town Escalation Protocol](https://docs.gastownhall.ai/design/escalation/) — escalation paths reference
+- [Operational State in Gas Town](https://docs.gastownhall.ai/design/operational-state/) — how events and labels track runtime state
 - [Diagnostics Commands](https://docs.gastownhall.ai/usage/diagnostics/) — `gt doctor`, `gt status`, `gt orphans` reference
 - [Towers of Hanoi Demo](https://docs.gastownhall.ai/examples/hanoi-demo/) — a durability proof showing crash recovery in action
 
