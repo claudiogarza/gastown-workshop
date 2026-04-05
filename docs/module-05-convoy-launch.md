@@ -237,18 +237,20 @@ WAVE 3 — dispatch when Wave 2 resolves
 
 ## The Staging Safety Net
 
-Imagine you stage and see a problem:
+Imagine you accidentally add a dependency on a bead that isn't part of your convoy. Staging catches it:
 
 ```
-⚠ WARNING: edi-008 blocked by edi-003 but edi-003 is not in the staged set
-   — dependency on out-of-scope bead may cause edi-008 to never unblock
+⚠ WARNING: edi-009 blocked by edi-042 but edi-042 is not in the staged set
+   — dependency on out-of-scope bead may cause edi-009 to never unblock
 ```
 
-You can fix the dep, then re-stage:
+This means `edi-009` depends on a bead that nobody in this convoy will close. It would be stuck forever.
+
+You can fix the dep and re-stage:
 
 ```bash
-# Fix the issue
-bd dep add <TEST_PARSER_ID> <BEAD_B>
+# Remove the bad dependency
+bd dep remove <TEST_INTEG_ID> edi-042
 
 # Re-stage (creates a new staged convoy)
 gt convoy stage <FETCHER_ID> <DISPLAY_ID> <CLI_ID> <WIRING_ID> <TEST_PARSER_ID> <TEST_INTEG_ID>

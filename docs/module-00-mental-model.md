@@ -89,7 +89,7 @@ A **persistent human workspace**. Your git clone where you (or an AI acting as y
 - **Refinery** — processes the merge queue, merges polecat branches to main
 - **Polecat**: does actual work, ephemeral (toast, furiosa, nux are pool names)
 - **Crew**: persistent workspace for you (your crew name)
-- **Dog** — Deacon's infrastructure helpers, NOT for user work
+- **Dog**: Deacon's maintenance workers (cleanup, health checks, shutdown dances). You won't interact with them directly
 
 ---
 

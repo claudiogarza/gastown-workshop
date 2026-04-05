@@ -93,6 +93,8 @@ Once attached, you'll see a Claude Code prompt inside `~/gt/YOUR_RIG/crew/human/
 
 From your **normal shell** (Window 1):
 
+> 💡 **This feature builds on top of Modules 2-4's work.** The forecast pipeline will create beads that modify existing files like `fetcher.py` and `models.py`. That's intentional. Polecats work on branches and the Refinery merges them. If there's a conflict with existing code, the Refinery spawns a fresh polecat to re-implement on the updated baseline.
+
 ```bash
 cd ~/gt
 gt sling mol-idea-to-plan YOUR_RIG/crew/human \
