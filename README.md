@@ -1,6 +1,6 @@
 # ⛽ Gas Town Workshop
 
-A hands-on tutorial for learning Gas Town — the multi-agent orchestration layer for AI coding workflows.
+A hands-on workshop for learning Gas Town — a system for orchestrating multiple AI agents to build and ship code.
 
 ## What is Gas Town?
 
@@ -9,7 +9,7 @@ Gas Town is a system for coordinating multiple AI agents to design, build, and s
 Instead of prompting one model at a time, you:
 - Break work into **beads** (small, well-defined units of work)
 - Organize them into **convoys** (ordered batches for dispatch)
-- Run them through agents with full traceability and recovery
+- Execute them with agents — with full traceability and recovery
 
 This workshop teaches you how to think and operate in that model by building a real project end-to-end.
 
@@ -102,7 +102,7 @@ Recommended flow:
 
 ## Quick Start
 
-Assuming Gas Town is already running, this gets you wired up for the tutorial in a few steps.
+If Gas Town is already running, this gets you ready to start the workshop in a few steps.
 
 > 🔧 **Gas Town not installed yet?** → **[Full Setup Guide →](docs/setup.md)**
 
@@ -128,7 +128,7 @@ gt rig list
 gt formula list
 ```
 
-You're ready when:
+✅ You're ready to start when:
 - `gt status` shows Gas Town running (mayor + deacon)
 - `gt rig list` shows the rig pointing at your fork
 - `gt formula list` includes `mol-idea-to-plan` and `shiny`
