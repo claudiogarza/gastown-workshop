@@ -10,3 +10,11 @@ build/
 .pytest_cache/
 .coverage
 plans/
+
+# Gas Town (added by gt)
+.runtime/
+.claude/
+.logs/
+state.json
+CLAUDE.md
+CLAUDE.local.md
