@@ -8,7 +8,7 @@ You won't run any commands in this module. You'll build a mental model of how Ga
 
 ## The Core Idea
 
-Gas Town is a **steam engine**. You don't run code directly — you put *work items* on a conveyor belt, and agents pick them up and run them. The key insight:
+Gas Town is a **steam engine**. You don't run code directly. You put *work items* on a conveyor belt, and agents pick them up and run them. The key insight:
 
 > Every action is attributed. Every agent has a track record. Every piece of work has provenance.
 
@@ -21,7 +21,7 @@ This isn't just tracking. It's the foundation for routing, debugging, and qualit
 Before anything else, get familiar with these five core terms:
 
 ### 🪨 Bead
-A unit of work. Like a GitHub issue, but richer — it has type, priority, acceptance criteria, dependencies, and attribution. Beads live in a **Dolt** (version-controlled SQL) database.
+A unit of work. Like a GitHub issue, but richer: it has type, priority, acceptance criteria, dependencies, and attribution. Beads live in a **Dolt** (version-controlled SQL) database.
 
 ```
 Bead: edi-042
@@ -33,7 +33,7 @@ Bead: edi-042
 ```
 
 ### 🦡 Polecat
-An **ephemeral worker**. Think: a Claude Code session in a git worktree that picks up one bead, does the work, and destroys itself. Polecats don't wait around — when they're done, they're gone.
+An **ephemeral worker**. Think: a Claude Code session in a git worktree that picks up one bead, does the work, and destroys itself. Polecats don't wait around. When they're done, they're gone.
 
 ```
 Polecat: Toast
@@ -47,7 +47,7 @@ Polecat: Toast
 A **tracking unit** for batched work. When you kick off multiple related beads, a convoy lets you see them all in one place and get notified when they all land.
 
 ### 🧪 Molecule
-A **structured workflow** — a formula that defines multiple steps with dependencies. Think of it like a mini pipeline: instead of a polecat just getting "do this task," it gets "do step 1, then step 2, then step 3." The molecule tracks progress through the steps.
+A **structured workflow**: a formula that defines multiple steps with dependencies. Think of it like a mini pipeline: instead of a polecat just getting "do this task," it gets "do step 1, then step 2, then step 3." The molecule tracks progress through the steps.
 
 ### 👤 Crew
 A **persistent human workspace**. Your git clone where you (or an AI acting as you) do exploratory work, run interactive pipelines, and make judgment calls.
@@ -152,7 +152,7 @@ Polecats have three independent layers. Confusing them is a common mistake.
 │  │  │  SESSION (ephemeral, cycles constantly)     │  │  │
 │  │  │  Claude instance in tmux                    │  │  │
 │  │  │  Dies on: handoff / compaction / crash      │  │  │
-│  │  │  (THIS IS NORMAL — work is safe in sandbox) │  │  │
+│  │  │  (THIS IS NORMAL. Work is safe in sandbox) │  │  │
 │  │  └─────────────────────────────────────────────┘  │  │
 │  └───────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────┘
@@ -192,7 +192,7 @@ Toast fires gt prime (via SessionStart hook)
          ▼
 Toast does the work
   → commits to sandbox branch
-  → may cycle sessions (handoff/compaction) — work is safe
+  → may cycle sessions (handoff/compaction). Work is safe
          │
          ▼
 Toast calls gt done

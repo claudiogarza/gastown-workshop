@@ -20,13 +20,13 @@ This module walks through that loop with a single bead.
 
 ## What We're Building
 
-A Python file: `weatherly/config.py` — a simple configuration module that holds API settings and defaults. Small enough to complete in one polecat session, clear enough to have real acceptance criteria.
+A Python file: `weatherly/config.py`, a simple configuration module that holds API settings and defaults. Small enough to complete in one polecat session, clear enough to have real acceptance criteria.
 
 ---
 
 ## Step 1: Create the Bead
 
-Long descriptions are easier with a heredoc — no shell escaping, just natural text:
+Long descriptions are easier with a heredoc. No shell escaping, just natural text:
 
 ```bash
 bd create "Add weatherly config module" -t task -p P2 --stdin << 'EOF'
@@ -61,7 +61,7 @@ bd update edi-001 --acceptance "- [ ] File exists at weatherly/config.py
 
 **You'll get back something like:** `edi-001`
 
-Take note of that ID — you'll need it.
+Take note of that ID. You'll need it.
 
 ---
 
@@ -86,7 +86,7 @@ bd list --json | jq '.[0]'   # see the raw structure
 bd ready
 ```
 
-This shows all beads with no unresolved blockers — things that can be picked up right now. `edi-001` should appear here since it has no dependencies.
+This shows all beads with no unresolved blockers, things that can be picked up right now. `edi-001` should appear here since it has no dependencies.
 
 ---
 
@@ -105,7 +105,7 @@ gt convoy list               # see your new convoy in the dashboard
 gt convoy status hq-cv-abc   # see the convoy details
 ```
 
-> 💡 **"Progress: 0/0"?** Don't worry — the convoy shows `0/0` until the bead is actually slung to a polecat. The tracking link is there; the counter activates on dispatch. This is normal.
+> 💡 **"Progress: 0/0"?** Don't worry. The convoy shows `0/0` until the bead is actually slung to a polecat. The tracking link is there; the counter activates on dispatch. This is normal.
 
 > 💡 **`--notify`** without an argument defaults to notifying `mayor/`. You can specify an address: `--notify edinsights_ui/crew/claudio` to notify yourself directly.
 
@@ -144,7 +144,7 @@ Starting session for YOUR_RIG/furiosa...
 
 **What this means:**
 - `furiosa` is the polecat name allocated from the pool (yours may be different)
-- `mol-polecat-work` is a built-in Gas Town formula that auto-attaches to polecat tasks — it creates a structured work molecule that guides the polecat through the task step-by-step (load context → implement → commit → done). You don't configure this; it's automatic.
+- `mol-polecat-work` is a built-in Gas Town formula that auto-attaches to polecat tasks. It creates a structured work molecule that guides the polecat through the task step-by-step (load context → implement → commit → done). You don't configure this; it's automatic.
 - `status=hooked` means the bead is now assigned and the polecat is starting
 
 **What just happened:**
@@ -209,7 +209,7 @@ gt convoy list --all      # convoy: landed
 git log --oneline -3      # see the commit with the polecat's attribution
 ```
 
-Look at that git log entry — it'll show the polecat's identity:
+Look at that git log entry. It'll show the polecat's identity:
 ```
 abc1234 feat: add weatherly config module
 Author: YOUR_RIG/polecats/furiosa <you@email.com>
@@ -265,19 +265,19 @@ ConvoyManager detects close (within 5 seconds)
 ## ⚠️ Common Mistakes at This Stage
 
 **"The polecat isn't doing anything"**
-Run `gt polecat list YOUR_RIG_NAME` — is it in "Working" state? Peek with `gt peek YOUR_RIG/polecat-name`. If it's stalled after 10+ minutes of no output, `gt polecat nuke polecat-name` and re-sling.
+Run `gt polecat list YOUR_RIG_NAME`. Is it in "Working" state? Peek with `gt peek YOUR_RIG/polecat-name`. If it's stalled after 10+ minutes of no output, `gt polecat nuke polecat-name` and re-sling.
 
 **"I don't see the bead in bd ready"**
 Check if the bead was created correctly with `bd show edi-001`. If it's already `hooked`, it's been picked up by the polecat.
 
-**"The convoy shows 0/0 — is something broken?"**
+**"The convoy shows 0/0. Is something broken?"**
 Nope, normal. The counter shows 0/0 until dispatch. After slinging, it activates.
 
 **"The convoy didn't close after the bead closed"**
 Convoy auto-closes when ALL tracked beads close. Check `gt convoy status hq-cv-abc` to see which are still open.
 
 **"I see `beads.role not configured` warning"**
-This warning appears if you haven't run `bd init` to set your role. It's harmless for workshop purposes — your beads still get created correctly. Suppress it by running `bd config set beads.role maintainer` from your crew directory.
+This warning appears if you haven't run `bd init` to set your role. It's harmless for workshop purposes. Your beads still get created correctly. Suppress it by running `bd config set beads.role maintainer` from your crew directory.
 
 ---
 

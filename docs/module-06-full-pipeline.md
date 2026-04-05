@@ -1,6 +1,6 @@
 # Module 6: The Full Pipeline
 
-> **Goal:** Use Gas Town's native formula workflows — `mol-idea-to-plan` for design and `shiny` for implementation — instead of manually creating beads. Experience how the full pipeline works end-to-end in a crew session.
+> **Goal:** Use Gas Town's native formula workflows (`mol-idea-to-plan` for design, `shiny` for implementation) instead of manually creating beads. Experience how the full pipeline works end-to-end in a crew session.
 
 ---
 
@@ -36,8 +36,8 @@ Your idea (1 sentence)
 ```
 
 **Two human gates** in the whole process:
-1. After PRD review — you answer clarifying questions
-2. After plan review — you approve before beads are created
+1. After PRD review: you answer clarifying questions
+2. After plan review: you approve before beads are created
 
 Everything else is autonomous.
 
@@ -45,7 +45,7 @@ Everything else is autonomous.
 
 ## The `shiny` Formula: What Polecats Actually Do
 
-Every bead a polecat picks up runs the `shiny` formula under the hood — "Engineer in a Box":
+Every bead a polecat picks up runs the `shiny` formula under the hood ("Engineer in a Box"):
 
 ```
 design     → think about architecture, write design doc
@@ -55,13 +55,13 @@ test       → write and run tests, fix regressions
 submit     → final check, commit, push to feature branch
 ```
 
-This is why polecats consistently produce better output than raw "write this code" instructions — they're following a structured workflow with acceptance criteria at each step. You can also sling `shiny` directly to a polecat for any single bead.
+This is why polecats consistently produce better output than raw "write this code" instructions. They're following a structured workflow with acceptance criteria at each step. You can also sling `shiny` directly to a polecat for any single bead.
 
 ---
 
 ## Why This Runs in a Crew Session
 
-The `mol-idea-to-plan` workflow has two interactive steps where it pauses and waits for you. A polecat can't do this — it's headless and ephemeral. A crew session is persistent and interactive — you attach to it, answer the questions, and the workflow continues.
+The `mol-idea-to-plan` workflow has two interactive steps where it pauses and waits for you. A polecat can't do this because it's headless and ephemeral. A crew session is persistent and interactive: you attach to it, answer the questions, and the workflow continues.
 
 ---
 
@@ -75,7 +75,7 @@ gt crew start claudio
 gt crew at claudio
 ```
 
-Once attached, you'll see a Claude Code prompt inside `~/gt/YOUR_RIG/crew/claudio/`. This is your crew agent — it has already run `gt prime` and knows its identity.
+Once attached, you'll see a Claude Code prompt inside `~/gt/YOUR_RIG/crew/claudio/`. This is your crew agent. It has already run `gt prime` and knows its identity.
 
 > 💡 **Two windows:** Keep two terminal windows open. Window 1: your normal shell for running `gt` commands. Window 2: attached to the crew session via `gt crew at claudio`. The crew session is where the interactive pipeline runs.
 
@@ -115,11 +115,11 @@ Agent reads the codebase and structures your problem statement into a PRD draft 
 ### prd-review — 6-Dimensional Review (autonomous, ~5 min)
 6 parallel subagents review the PRD from different angles: requirements, gaps, ambiguity, feasibility, scope, stakeholders. Results synthesized into a consolidated question list.
 
-> 💡 **Note on `mol-prd-review`:** If the formula is installed, Gas Town spins up polecats for each leg. If not (it may be missing from your install), the crew agent runs the review itself using parallel subagents. Either way the output is the same — you won't notice the difference.
+> 💡 **Note on `mol-prd-review`:** If the formula is installed, Gas Town spins up polecats for each leg. If not (it may be missing from your install), the crew agent runs the review itself using parallel subagents. Either way the output is the same. You won't notice the difference.
 
 ---
 
-## Step 4: Your First Gate — `human-clarify`
+## Step 4: Your First Gate (`human-clarify`)
 
 **The human gates use mail, not terminal input.** The crew agent pauses and sends you a mail message with the questions. You read it, reply, then nudge to continue.
 
@@ -183,9 +183,9 @@ gt nudge edinsights_ui/claudio "Answers sent. Proceed with plan generation."
 
 ---
 
-## Step 6: Your Second Gate — `human-approve`
+## Step 6: Your Second Gate (`human-approve`)
 
-Same pattern — mail arrives, you read and reply.
+Same pattern. Mail arrives, you read and reply.
 
 ```bash
 gt mail inbox       # new message from claudio
@@ -229,7 +229,7 @@ gt nudge edinsights_ui/claudio "Approved. Create the beads."
 
 ## Step 7: Automatic Bead Creation
 
-The agent creates the full bead hierarchy autonomously. Watch `gt feed` or just wait — it takes about 1-2 minutes. When done, the crew session goes idle and reports:
+The agent creates the full bead hierarchy autonomously. Watch `gt feed` or just wait. It takes about 1-2 minutes. When done, the crew session goes idle and reports:
 
 ```
 Ready to dispatch: edi-d0x and edi-7hm are unblocked (Wave 1).

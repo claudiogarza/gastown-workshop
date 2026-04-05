@@ -8,7 +8,7 @@
 
 ## The Problem: Sequential Work is Slow
 
-What if three things are genuinely independent? Running them one after another wastes time. Gas Town's answer: **parallel lanes** — multiple polecats working simultaneously.
+What if three things are genuinely independent? Running them one after another wastes time. Gas Town's answer: **parallel lanes**. Multiple polecats working simultaneously.
 
 ---
 
@@ -22,11 +22,11 @@ edi-005: Add terminal display       (independent)
 edi-006: Add CLI argument parser    (independent)
 
      ↓            ↓            ↓
- (all run in parallel — Wave 1)
+ (all run in parallel, Wave 1)
      │
      └──────────────┐
                     ▼
-edi-007: Wire it all together  (blocked by all three — Wave 2)
+edi-007: Wire it all together  (blocked by all three, Wave 2)
 ```
 
 ---

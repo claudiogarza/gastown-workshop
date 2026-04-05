@@ -15,7 +15,7 @@ bd create ...
 ```
 
 ### `Error: failed to open database: database "rig_name" not found on Dolt server`
-**Dolt fingerprint mismatch** — usually happens after repo URL changes.
+**Dolt fingerprint mismatch.** Usually happens after repo URL changes.
 ```bash
 bd doctor | head -20    # look for "Repo Fingerprint" error
 echo "y" | bd migrate --update-repo-id
@@ -34,7 +34,7 @@ bd config set beads.role maintainer
 ```bash
 bd dep remove <blocked-id> <blocker-id>    # removes the blocks dep
 ```
-To remove a parent-child dep, same syntax — it finds and removes the right one.
+To remove a parent-child dep, same syntax. It finds and removes the right one.
 
 ---
 
@@ -89,10 +89,10 @@ bd dep cycles    # check for cycles
 Also can happen with bidirectional parent-child deps (a → b AND b → a).
 
 ### `gt up` fails with "port 3307 already in use"
-**Dolt is already running** from a previous session. This is fine — it's a false alarm.
+**Dolt is already running** from a previous session. This is fine, it's a false alarm.
 ```bash
 ps aux | grep dolt | grep -v grep    # confirm Dolt process exists
-# If it's there, proceed — Dolt is running fine
+# If it's there, proceed. Dolt is running fine
 ```
 
 ---
@@ -103,7 +103,7 @@ ps aux | grep dolt | grep -v grep    # confirm Dolt process exists
 **This is expected and good.** Gas Town is attaching a structured work molecule that guides the polecat through design → implement → review → test → submit steps. No action needed.
 
 ### `gt polecat list YOUR_RIG` shows polecat as "idle" for a long time
-**Idle means it hasn't been slung work** — not a failure state. Check if it picked up a bead:
+**Idle means it hasn't been slung work**, not a failure state. Check if it picked up a bead:
 ```bash
 gt peek YOUR_RIG/furiosa    # if it's working, you'll see output
 ```
@@ -114,7 +114,7 @@ gt orphans                  # check if bead is orphaned
 ```
 
 ### Convoy shows `Progress: 0/0` after creation
-**Normal.** The counter in `gt convoy status` doesn't reflect what `gt convoy create` says about "Tracking: N issues" — they're showing different things. The `0/0` counter activates once beads start closing. Not a bug, just confusing display.
+**Normal.** The counter in `gt convoy status` doesn't reflect what `gt convoy create` says about "Tracking: N issues". They're showing different things. The `0/0` counter activates once beads start closing. Not a bug, just confusing display.
 
 ### Bead stays in `hooked` state after polecat session ends
 **The Deacon will unhook it after 1 hour.** If you want to recover it faster:
@@ -141,7 +141,7 @@ gt dolt stop && gt dolt start
 
 ### Orphan databases accumulating
 ```bash
-gt dolt cleanup    # safe — removes test/orphan DBs, protects production
+gt dolt cleanup    # safe: removes test/orphan DBs, protects production
 gt dolt status     # shows orphan count
 ```
 
@@ -155,7 +155,7 @@ gt mail inbox    # ✅ list messages
 gt mail read 1   # ✅ read by index
 ```
 
-### `gt mail send` — `--thread` flag doesn't exist
+### `gt mail send`: `--thread` flag doesn't exist
 Use `--reply-to <message-id>` instead:
 ```bash
 gt mail send edinsights_ui/claudio \
@@ -168,7 +168,7 @@ gt mail send edinsights_ui/claudio \
 Messages stay in inbox until archived. The newest is always index 1. Use `gt mail read 1` to get the latest.
 
 ### After replying, crew agent doesn't continue
-You need to nudge it — mail delivery alone doesn't wake the agent:
+You need to nudge it. Mail delivery alone doesn't wake the agent:
 ```bash
 gt nudge edinsights_ui/claudio "Answers sent. Continue."
 ```

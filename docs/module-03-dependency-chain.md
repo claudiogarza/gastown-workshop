@@ -121,7 +121,7 @@ bd dep add edi-003 edi-002
 Verify it:
 ```bash
 bd show edi-003   # should show "blocked by: edi-002"
-bd ready          # edi-003 should NOT appear here — it's blocked
+bd ready          # edi-003 should NOT appear here (it's blocked)
 ```
 
 ---
@@ -146,7 +146,7 @@ gt convoy status hq-cv-xyz
   Progress: 0/0 completed
 ```
 
-> 💡 **0/0 is normal** until beads start closing — see Module 1.
+> 💡 **0/0 is normal** until beads start closing. See Module 1.
 
 ---
 
@@ -174,7 +174,7 @@ When `edi-002` closes:
 
 ```
 [20:31:12] furiosa closed edi-002: Add WeatherData dataclass
-[20:31:13] ConvoyManager: edi-002 closed — checking convoy hq-cv-xyz
+[20:31:13] ConvoyManager: edi-002 closed. Checking convoy hq-cv-xyz
 [20:31:13] ConvoyManager: edi-003 is now unblocked
 [20:31:13] ConvoyManager: slinging edi-003 to YOUR_RIG
 [20:31:14] nux hooked edi-003: Add weather data parser
@@ -218,7 +218,7 @@ weatherly/models.py  ←──  weatherly/parser.py
 ## Check the Dependency Graph
 
 ```bash
-bd dep cycles   # should return empty — no circular deps
+bd dep cycles   # should return empty (no circular deps)
 ```
 
 ---

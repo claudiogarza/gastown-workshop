@@ -15,7 +15,7 @@ gt sling spec-workflow → plan-workflow → beads-workflow → gt convoy stage 
 ## Bead Operations
 
 ```bash
-# Create — use heredoc for long descriptions (no shell escaping)
+# Create: use heredoc for long descriptions (no shell escaping)
 bd create "Title" -t [epic|task|bug|chore] -p [P0-P4] \
   --parent $PARENT_ID \
   --deps "$BLOCKER1,$BLOCKER2" \

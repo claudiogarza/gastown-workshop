@@ -28,7 +28,7 @@ If anything fails, follow the full setup below.
 
 ## 1. Find Your Town Root & Enable Shell Integration
 
-First — confirm where your Gas Town town root actually is. It's not always `~/gt`:
+First, confirm where your Gas Town town root actually is. It's not always `~/gt`:
 
 ```bash
 gt status 2>/dev/null | head -3
@@ -37,9 +37,9 @@ ls ~/gt/         # common location
 ls ~/gt/learn/   # another common location
 ```
 
-The directory containing `mayor/` and `.beads/` is your town root. **Write it down** — you'll use it everywhere below as `~/gt` (substituting your actual path if different).
+The directory containing `mayor/` and `.beads/` is your town root. **Write it down.** You'll use it everywhere below as `~/gt` (substituting your actual path if different).
 
-Now enable Gas Town and install shell integration — a one-time step. Without it, `GT_ROOT` and `GT_RIG` won't be set when you `cd` into crew directories, and `gt formula list` won't find anything.
+Now enable Gas Town and install shell integration. This is a one-time step. Without it, `GT_ROOT` and `GT_RIG` won't be set when you `cd` into crew directories, and `gt formula list` won't find anything.
 
 ```bash
 cd YOUR_TOWN_ROOT    # e.g. ~/gt or ~/gt/learn

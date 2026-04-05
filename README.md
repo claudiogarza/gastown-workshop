@@ -1,6 +1,6 @@
 # ⛽ Gas Town Workshop
 
-A hands-on workshop for learning Gas Town — a system for orchestrating multiple AI agents to build and ship code.
+A hands-on workshop for learning Gas Town, a system for orchestrating multiple AI agents to build and ship code.
 
 ## What is Gas Town?
 
@@ -9,7 +9,7 @@ Gas Town is a system for coordinating multiple AI agents to design, build, and s
 Instead of prompting one model at a time, you:
 - Break work into **beads** (small, well-defined units of work)
 - Organize them into **convoys** (ordered batches for dispatch)
-- Execute them with agents — with full traceability and recovery
+- Execute them with agents, with full traceability and recovery
 
 This workshop teaches you how to think and operate in that model by building a real project end-to-end.
 
@@ -27,7 +27,7 @@ By the end of this workshop you'll know how to:
 
 ## The Project: `weatherly` 🌦️
 
-You'll build **weatherly** — a CLI weather dashboard in Python. It's small enough to finish in an afternoon but has enough structure to demonstrate everything Gas Town can do:
+You'll build **weatherly**, a CLI weather dashboard in Python. It's small enough to finish in an afternoon but has enough structure to demonstrate everything Gas Town can do:
 
 ```
 ┌─────────────────────────────────────────────────────┐
@@ -82,7 +82,7 @@ Open Claude Code (run `claude` in your terminal), then run these slash commands 
 /plugin install gt-sdlc
 ```
 
-Verify by running `/gt-sdlc:brief` inside Claude Code — you should see the command prompt.
+Verify by running `/gt-sdlc:brief` inside Claude Code. You should see the command prompt.
 
 ## Repo Ownership Assumption
 
@@ -97,7 +97,7 @@ not push changes back.
 Recommended flow:
 
 1. Fork `claudiogarza/gastown-workshop` to your own org/account
-2. Use `gt rig add` with your fork URL — Gas Town clones it into its own structure
+2. Use `gt rig add` with your fork URL (Gas Town clones it into its own structure)
 3. Let Gas Town push and merge against the fork you control
 
 ## Quick Start
@@ -112,7 +112,7 @@ If Gas Town is already running, this gets you ready to start the workshop in a f
 #   gh repo fork claudiogarza/gastown-workshop
 # Example (org):
 #   gh repo fork claudiogarza/gastown-workshop --org YOUR_ORG
-# No need to clone — gt rig add handles that.
+# No need to clone. gt rig add handles that.
 
 # 1. Verify Gas Town is running
 gt status
@@ -139,4 +139,4 @@ If you hit setup issues, check the **[Full Setup Guide →](docs/setup.md)**
 
 ---
 
-> 💡 **Tip:** Each module has step-by-step commands to run. **Do them.** Gas Town only makes sense when you watch it move — reading without doing is half the value.
+> 💡 **Tip:** Each module has step-by-step commands to run. **Do them.** Gas Town only makes sense when you watch it move. Reading without doing is half the value.

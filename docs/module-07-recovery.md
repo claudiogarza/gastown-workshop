@@ -6,7 +6,7 @@
 
 ## The Reality
 
-Polecats crash. Sessions time out. Dolt hiccups. The Refinery hits a merge conflict. Gas Town is designed for this — most failures recover automatically. Your job is to know the difference between "wait, Gas Town is handling it" and "I need to step in."
+Polecats crash. Sessions time out. Dolt hiccups. The Refinery hits a merge conflict. Gas Town is designed for this. Most failures recover automatically. Your job is to know the difference between "wait, Gas Town is handling it" and "I need to step in."
 
 ---
 
@@ -15,7 +15,7 @@ Polecats crash. Sessions time out. Dolt hiccups. The Refinery hits a merge confl
 ```
 Working     ← normal, doing its job
     │
-    │  session crashes/compacts — Witness sees no output
+    │  session crashes/compacts. Witness sees no output
     ▼
 Stalled     ← supposed to be working, isn't
              Witness detects: nudges first, then respawns
@@ -131,7 +131,7 @@ The Witness polls polecats every ~3 minutes. If a polecat is idle without having
 gt boot status
 ```
 
-This shows the last Boot triage result — what the Deacon's watchdog found on its most recent health check:
+This shows the last Boot triage result: what the Deacon's watchdog found on its most recent health check:
 
 ```
 Boot Status:
@@ -208,7 +208,7 @@ Refinery spawns FRESH polecat
 Refinery merges fresh work
 ```
 
-**You don't intervene.** The Refinery handles it. The original bead description is the source of truth — this is why clear descriptions matter. A vague description = a re-implementation that might drift.
+**You don't intervene.** The Refinery handles it. The original bead description is the source of truth. This is why clear descriptions matter. A vague description = a re-implementation that might drift.
 
 ---
 
@@ -218,13 +218,13 @@ When something seems wrong:
 
 ```
 1. gt status
-   ↓ (see overall health — are Witness/Refinery running?)
+   ↓ (see overall health: are Witness/Refinery running?)
 
 2. gt polecat list YOUR_RIG
    ↓ (see who's running, who's not)
 
 3. gt feed
-   ↓ (recent events — did things move recently?)
+   ↓ (recent events: did things move recently?)
 
 4. gt peek YOUR_RIG/polecat-name
    ↓ (what is that specific polecat doing?)
@@ -242,7 +242,7 @@ When something seems wrong:
    ↓ (system-level health check)
 
 9. gt escalate -s HIGH "..."
-   ↓ (if you can't fix it — Mayor gets involved)
+   ↓ (if you can't fix it, Mayor gets involved)
 ```
 
 ---

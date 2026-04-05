@@ -1,4 +1,4 @@
-# Module 5: Convoy Launch — Stage, Validate, Launch
+# Module 5: Convoy Launch: Stage, Validate, Launch
 
 > **Goal:** Use the proper `gt convoy stage → launch` flow. See what wave computation actually looks like, and understand what staging gives you that direct slinging doesn't.
 
@@ -25,7 +25,7 @@ gt convoy stage <bead-id-list or epic-id>
          │
          ▼
    STAGED (status: staged_ready)
-   INERT — nothing dispatches yet
+   INERT. Nothing dispatches yet
    Shows:
      ✓ dependency tree
      ✓ wave computation (Kahn's topological sort)
@@ -154,7 +154,7 @@ bd dep add edi-009 edi-007   # integration test needs full wired app
 
 ## Stage the Convoy (No Epic Needed)
 
-You can pass bead IDs directly to `gt convoy stage` — no need for a parent epic:
+You can pass bead IDs directly to `gt convoy stage`. No need for a parent epic:
 
 ```bash
 gt convoy stage edi-004 edi-005 edi-006 edi-007 edi-008 edi-009
@@ -234,7 +234,7 @@ bd dep add edi-008 edi-003
 gt convoy stage edi-004 edi-005 edi-006 edi-007 edi-008 edi-009
 ```
 
-Nothing ran, nothing broke — you caught it in the pre-flight.
+Nothing ran, nothing broke. You caught it in the pre-flight.
 
 ---
 
@@ -244,9 +244,9 @@ Nothing ran, nothing broke — you caught it in the pre-flight.
 gt convoy launch hq-cv-wxyz
 ```
 
-Wave 1 dispatches immediately — polecats spin up in parallel. Walk away. The ConvoyManager handles the rest.
+Wave 1 dispatches immediately. Polecats spin up in parallel. Walk away. The ConvoyManager handles the rest.
 
-> ⚠️ **Don't run `gt convoy launch` twice on the same convoy.** If it gets interrupted and you re-run it, Gas Town re-stages and creates a NEW convoy tracking the same beads. Check `gt convoy list` — if you see two convoys tracking the same work, close the duplicate: `bd close hq-cv-old -r "duplicate"`. The beads will already be hooked from the first launch.
+> ⚠️ **Don't run `gt convoy launch` twice on the same convoy.** If it gets interrupted and you re-run it, Gas Town re-stages and creates a NEW convoy tracking the same beads. Check `gt convoy list`. If you see two convoys tracking the same work, close the duplicate: `bd close hq-cv-old -r "duplicate"`. The beads will already be hooked from the first launch.
 
 ---
 
@@ -302,7 +302,7 @@ bd show <epic-id>
 ```
 Should show `CHILDREN ↳` pointing to the tasks. If you see `PARENT ↑` there, you've got it backwards.
 
-> 💡 **`parent-child` doesn't affect execution order.** It's purely organizational — for grouping, display, and `gt convoy stage <epic-id>` discovery. Only `blocks` deps control wave order.
+> 💡 **`parent-child` doesn't affect execution order.** It's purely organizational: for grouping, display, and `gt convoy stage <epic-id>` discovery. Only `blocks` deps control wave order.
 
 ---
 

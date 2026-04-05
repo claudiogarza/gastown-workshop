@@ -1,6 +1,6 @@
 # Module 1: From Idea to Beads
 
-> **Goal:** Understand the decision-making work that happens *before* the first bead is created. Learn how an idea becomes a product brief, a brief becomes a design, and a design becomes a concrete bead plan — with every value traced back to a decision.
+> **Goal:** Understand the decision-making work that happens *before* the first bead is created. Learn how an idea becomes a product brief, a brief becomes a design, and a design becomes a concrete bead plan, with every value traced back to a decision.
 
 ## What You're Doing in This Module
 
@@ -17,7 +17,7 @@ Gas Town executes work. It doesn't define it.
 Before a polecat can build anything, a human has to answer three questions:
 
 1. **What are we building and why?** (the brief)
-2. **How will it work — what decisions need to be made?** (the design)
+2. **How will it work? What decisions need to be made?** (the design)
 3. **What units of work can an agent execute independently?** (the bead plan)
 
 These decisions should be made before a polecat ever starts the work. Polecats pick up a bead with a clear body and acceptance criteria, execute, and close. **If the bead body is vague, the output is vague.** The human layer is what makes bead bodies concrete.
@@ -55,34 +55,34 @@ claude
 
 Once installed, you'll run `/gt-sdlc:brief`, `/gt-sdlc:design`, and `/gt-sdlc:plan` from inside Claude Code to generate the markdown artifacts that Gas Town will later execute.
 
-> 📋 **These files live in your crew workspace, not in the repo.** The plugin writes them to `docs/` in your working directory. They're *your* artifacts — the decisions you made for your version of weatherly.
+> 📋 **These files live in your crew workspace, not in the repo.** The plugin writes them to `docs/` in your working directory. They're *your* artifacts, the decisions you made for your version of weatherly.
 
 ---
 
 ## Step 1: The Product Brief
 
-A brief answers: what, for who, and what does success look like. No implementation details — those belong in design.
+A brief answers: what, for who, and what does success look like. No implementation details. Those belong in design.
 
 ### Running the plugin
 
 ```bash
-/gt-sdlc:brief "a terminal weather dashboard — one command, no config"
+/gt-sdlc:brief "a terminal weather dashboard, one command, no config"
 ```
 
-> ⚡ **What to expect:** The plugin doesn't just write a file — it interviews you. Expect 3–5 exchanges where it asks about your motivation, scope, constraints, and success criteria. It synthesizes your answers into a structured brief, then asks you to approve before writing.
+> ⚡ **What to expect:** The plugin doesn't just write a file. It interviews you. Expect 3–5 exchanges where it asks about your motivation, scope, constraints, and success criteria. It synthesizes your answers into a structured brief, then asks you to approve before writing.
 
 ### What the conversation feels like
 
-The plugin's output isn't deterministic — it adapts to what you say. But the *shape* of the conversation is consistent. Here's roughly how it goes:
+The plugin's output isn't deterministic. It adapts to what you say. But the *shape* of the conversation is consistent. Here's roughly how it goes:
 
-1. **Brain dump** — it asks you to describe the idea in your own words. What sparked it, what you're picturing, what "no config" means to you.
-2. **Clarifying questions** — it identifies gaps: what happens with no arguments? What about units? What's explicitly *not* in v1?
-3. **Scope fences** — it confirms what's in and what's out, so the brief has clear boundaries.
-4. **Draft and review** — it writes a structured brief and asks if you're happy before saving.
+1. **Brain dump:** it asks you to describe the idea in your own words. What sparked it, what you're picturing, what "no config" means to you.
+2. **Clarifying questions:** it identifies gaps: what happens with no arguments? What about units? What's explicitly *not* in v1?
+3. **Scope fences:** it confirms what's in and what's out, so the brief has clear boundaries.
+4. **Draft and review:** it writes a structured brief and asks if you're happy before saving.
 
 Your exact questions will differ, but the flow is always: **your idea → targeted gaps → scope agreement → written artifact**. **The plugin is doing product thinking *with* you, not for you.** Every answer you give becomes a constraint that shapes decisions downstream.
 
-> 💡 **Why this matters:** If you'd said "Celsius default" here, it would cascade — the design doc, bead bodies, and test expectations all change. The brief is the root of the decision tree.
+> 💡 **Why this matters:** If you'd said "Celsius default" here, it would cascade. The design doc, bead bodies, and test expectations all change. The brief is the root of the decision tree.
 
 ### What a good brief captures
 
@@ -117,7 +117,7 @@ Before moving on, make sure your brief:
 
 ## Step 2: The Design Document
 
-The design answers: *how* will it work? This is where you make decisions — data sources, dependencies, failure modes, module shape. Each decision produces a **concrete value** that will appear verbatim in a bead body.
+The design answers: *how* will it work? This is where you make decisions: data sources, dependencies, failure modes, module shape. Each decision produces a **concrete value** that will appear verbatim in a bead body.
 
 ```bash
 # With the plugin (reads brief, interactive decision elicitation):
@@ -139,16 +139,16 @@ Each decision in the design has the same shape:
 ### 1. Weather Data Source
 
 **Options considered:**
-- OpenWeatherMap — requires API key ❌ (violates zero-config)
-- WeatherAPI — requires API key ❌ (violates zero-config)
-- wttr.in — keyless, JSON endpoint, built for terminals ✅
+- OpenWeatherMap: requires API key ❌ (violates zero-config)
+- WeatherAPI: requires API key ❌ (violates zero-config)
+- wttr.in: keyless, JSON endpoint, built for terminals ✅
 
 **Decision:** wttr.in. Only option that honors zero-config in a single call.
 
 **Impact:** `API_BASE_URL = "https://wttr.in"`
 ```
 
-The "Impact" line is what matters. That's the literal value a bead body will cite. Not "some weather API URL" — exactly `"https://wttr.in"`.
+The "Impact" line is what matters. That's the literal value a bead body will cite. Not "some weather API URL". Exactly `"https://wttr.in"`.
 
 ### weatherly's key decisions
 
@@ -160,7 +160,7 @@ The "Impact" line is what matters. That's the literal value a bead body will cit
 | Failure mode | retry, fail-fast, cache | fail-fast | fetcher raises, main catches |
 | Module shape | 3-module, 5-module, monolith | 5-module | config / fetcher / processor / display / cli |
 
-> 💡 **The brief constrains the design.** Zero-config → no API keys → wttr.in. The decision didn't require a long debate — the constraint made it obvious.
+> 💡 **The brief constrains the design.** Zero-config → no API keys → wttr.in. The decision didn't require a long debate. The constraint made it obvious.
 
 ### The architecture
 
@@ -186,7 +186,7 @@ cli.py → builds Config from args
        → display.py → printed output
 ```
 
-Each module has one job. Dependencies flow one direction. This isn't aesthetic — it's what makes the bead breakdown clean.
+Each module has one job. Dependencies flow one direction. This isn't aesthetic. It's what makes the bead breakdown clean.
 
 ### Design checkpoint
 
@@ -231,20 +231,20 @@ pyproject.toml:
 EOF
 ```
 
-Every value in that heredoc — `"https://wttr.in"`, `"j1"`, `"fahrenheit"` — traces back to a decision in the design doc. **The polecat doesn't invent these. You did.**
+Every value in that heredoc (`"https://wttr.in"`, `"j1"`, `"fahrenheit"`) traces back to a decision in the design doc. **The polecat doesn't invent these. You did.**
 
 ### The wave breakdown
 
 The design's dependency structure maps directly to execution waves:
 
 ```
-Wave 1:  config.py (no deps — everyone imports from this)
-Wave 2:  fetcher.py + processor.py (parallel — both only need config)
+Wave 1:  config.py (no deps, everyone imports from this)
+Wave 2:  fetcher.py + processor.py (parallel, both only need config)
 Wave 3:  display.py (needs WeatherData from processor)
-Wave 4:  cli.py (wires everything — last)
+Wave 4:  cli.py (wires everything, last)
 ```
 
-Fetcher and processor run in parallel because they never import each other — they communicate through a raw dict. That's not an accident; the design explicitly kept them decoupled so they'd parallelize cleanly.
+Fetcher and processor run in parallel because they never import each other. They communicate through a raw dict. That's not an accident; the design explicitly kept them decoupled so they'd parallelize cleanly.
 
 ### Plan checkpoint
 
@@ -275,22 +275,22 @@ The polecat never had to guess. Every literal value in the bead was decided by a
 
 ## Manual vs Plugin
 
-You don't need the `gt-sdlc` plugin. The documents it produces are just markdown files — you can write them by hand. The plugin speeds up the elicitation, but the *thinking* is the same either way.
+You don't need the `gt-sdlc` plugin. The documents it produces are just markdown files. You can write them by hand. The plugin speeds up the elicitation, but the *thinking* is the same either way.
 
-What matters is that the documents exist **before** you write the first bead. Not as a formality — as a decision record. Six weeks from now when a polecat touches fetcher.py, it will read the design doc and know exactly why `DEFAULT_UNITS = 'fahrenheit'` instead of `'metric'`.
+What matters is that the documents exist **before** you write the first bead. Not as a formality, but as a decision record. Six weeks from now when a polecat touches fetcher.py, it will read the design doc and know exactly why `DEFAULT_UNITS = 'fahrenheit'` instead of `'metric'`.
 
 ---
 
 ## Before You Continue
 
 You should now have these files in `docs/` in your current crew workspace:
-- `docs/product-brief.md` — vision, problem, success criteria
-- `docs/design.md` — key decisions with concrete impacts, architecture, bead breakdown
-- `docs/initial-plan.bead.md` — ready-to-run `bd create` commands
+- `docs/product-brief.md`: vision, problem, success criteria
+- `docs/design.md`: key decisions with concrete impacts, architecture, bead breakdown
+- `docs/initial-plan.bead.md`: ready-to-run `bd create` commands
 
-> 📋 **Staying on track:** The rest of the tutorial assumes the core weatherly constraints — zero config, wttr.in, Fahrenheit default with `--celsius` flag, 5-module architecture. As long as your plugin output kept those, you're good.
+> 📋 **Staying on track:** The rest of the tutorial assumes the core weatherly constraints: zero config, wttr.in, Fahrenheit default with `--celsius` flag, 5-module architecture. As long as your plugin output kept those, you're good.
 
-Take a few minutes to read them before moving on — the next module executes the first bead from that plan, and understanding where it came from is the point.
+Take a few minutes to read them before moving on. The next module executes the first bead from that plan, and understanding where it came from is the point.
 
 ```bash
 cat docs/product-brief.md
