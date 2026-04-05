@@ -39,7 +39,7 @@ Your idea (1 sentence)
 │  Polecats execute each bead using    │
 │  the `shiny` formula:                │
 │    design → implement → review       │
-│           → test → submit           │
+│           → test → submit            │
 └──────────────────────────────────────┘
 ```
 
