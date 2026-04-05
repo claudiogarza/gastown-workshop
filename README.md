@@ -129,7 +129,7 @@ gt formula list
 ```
 
 ✅ You're ready to start when:
-- `gt status` shows Gas Town running (mayor + deacon)
+- `gt status` shows Gas Town running (mayor + deacon + witness + refinery for your rig)
 - `gt rig list` shows the rig pointing at your fork
 - `gt formula list` includes `mol-idea-to-plan` and `shiny`
 

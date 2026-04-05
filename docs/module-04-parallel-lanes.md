@@ -93,7 +93,7 @@ Function signature: def parse_args() -> Config
 
 Arguments:
 - location (positional): city name or 'auto' for IP-based detection
-- --units: 'metric' or 'imperial' (default: 'metric')
+- --celsius: flag to switch output to Celsius (default: Fahrenheit)
 - --format: output format string (default: 'j1')
 - -v/--verbose: flag for verbose output (store_true)
 
@@ -104,7 +104,7 @@ EOF
 ```bash
 bd update <CLI_ID> --acceptance "- [ ] File exists at weatherly/cli.py
 - [ ] parse_args() returns Config instance
-- [ ] All arguments defined correctly
+- [ ] All arguments defined correctly (location, --celsius, --format, --verbose)
 - [ ] --help output is clear and includes all arguments"
 ```
 
@@ -209,7 +209,7 @@ Watch the feed:
 gt feed
 ```
 
-When all three Wave 1 beads close, the ConvoyManager automatically slinging `edi-007` to a fresh polecat. You walk away after `gt convoy launch`.
+When all three Wave 1 beads close, the ConvoyManager automatically slings `edi-007` to a fresh polecat. You walk away after `gt convoy launch`.
 
 ---
 

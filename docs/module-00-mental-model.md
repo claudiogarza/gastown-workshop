@@ -36,11 +36,11 @@ Bead: edi-042
 An **ephemeral worker**. Think: a Claude Code session in a git worktree that picks up one bead, does the work, and destroys itself. Polecats don't wait around. When they're done, they're gone.
 
 ```
-Polecat: Toast
+Polecat: toast
   Rig: YOUR_RIG
   Status: Working
   Hook: edi-042 (Add weather fetcher module)
-  Sandbox: ~/gt/YOUR_RIG/polecats/Toast/
+  Sandbox: ~/gt/YOUR_RIG/polecats/toast/
 ```
 
 ### 🚚 Convoy
@@ -74,7 +74,7 @@ A **persistent human workspace**. Your git clone where you (or an AI acting as y
     ┌─────────┼──────────┐
     │         │          │
 ┌───┴──┐   ┌──┴───┐   ┌──┴───┐
-│Toast │   │Furio.│   │ Nux  │  ← Polecats (ephemeral workers)
+│toast │   │furio.│   │ nux  │  ← Polecats (ephemeral workers)
 └──────┘   └──────┘   └──────┘
 
          ┌──────────┐
@@ -87,7 +87,7 @@ A **persistent human workspace**. Your git clone where you (or an AI acting as y
 - **Deacon** — background Go daemon, health checks every 3 minutes, manages Dogs
 - **Witness** — watches polecats in one rig, nudges stalled ones, respawns crashed ones
 - **Refinery** — processes the merge queue, merges polecat branches to main
-- **Polecat** — does actual work, ephemeral (Toast, Furiosa, Nux are pool names)
+- **Polecat**: does actual work, ephemeral (toast, furiosa, nux are pool names)
 - **Crew**: persistent workspace for you (your crew name)
 - **Dog** — Deacon's infrastructure helpers, NOT for user work
 
@@ -139,13 +139,13 @@ Polecats have three independent layers. Confusing them is a common mistake.
 ```
 ┌─────────────────────────────────────────────────────────┐
 │  SLOT (persistent until nuke)                           │
-│  Name: Toast                                            │
+│  Name: toast                                            │
 │  Pool entry for YOUR_RIG                                │
 │                                                         │
 │  ┌───────────────────────────────────────────────────┐  │
 │  │  SANDBOX (persistent until nuke)                  │  │
-│  │  Path: ~/gt/YOUR_RIG/polecats/Toast/              │  │
-│  │  Branch: polecat/Toast/edi-042                    │  │
+│  │  Path: ~/gt/YOUR_RIG/polecats/toast/              │  │
+│  │  Branch: polecat/toast/edi-042                    │  │
 │  │  Contains: all committed/staged work              │  │
 │  │                                                   │  │
 │  │  ┌─────────────────────────────────────────────┐  │  │
@@ -177,25 +177,25 @@ You create a bead (bd create)
 You sling it (gt sling edi-042 YOUR_RIG)
          │
          ▼
-Witness spawns a polecat (Toast)
+Witness spawns a polecat (toast)
   → allocates slot from pool
   → creates sandbox (git worktree on new branch)
   → starts Claude session in tmux
-  → hooks edi-042 to Toast
+  → hooks edi-042 to toast
          │
          ▼
-Toast fires gt prime (via SessionStart hook)
-  → reads its identity (YOUR_RIG/polecats/Toast)
+toast fires gt prime (via SessionStart hook)
+  → reads its identity (YOUR_RIG/polecats/toast)
   → sees edi-042 on hook
   → EXECUTES IMMEDIATELY (propulsion principle)
          │
          ▼
-Toast does the work
+toast does the work
   → commits to sandbox branch
   → may cycle sessions (handoff/compaction). Work is safe
          │
          ▼
-Toast calls gt done
+toast calls gt done
   → pushes branch to origin
   → submits to merge queue (creates MR bead)
   → requests self-nuke

@@ -1,4 +1,4 @@
-# Appendix C: Common Errors & Fixes
+# Common Errors & Fixes
 
 Quick lookup for error messages you'll actually see.
 
@@ -177,11 +177,12 @@ gt nudge YOUR_RIG/human "Answers sent. Continue."
 
 ## Formula / Molecule Issues
 
-### `gt formula list` doesn't show spec-workflow, plan-workflow, beads-workflow
-**gt-toolkit formulas aren't installed.** These are community formulas, not built-in.
+### `gt formula list` doesn't show `mol-idea-to-plan` or `shiny`
+**You may have an older version of Gas Town.** These are native formulas that ship with Gas Town.
 ```bash
-git clone https://github.com/Xexr/gt-toolkit.git ~/source/gt-toolkit
-cp ~/source/gt-toolkit/formulas/*.formula.toml ~/gt/.beads/formulas/
+gt stale              # check for updates
+gt down && gt up      # restart after updating
+gt formula list       # verify they appear
 ```
 
 ### `mol-idea-to-plan` slung but crew session doesn't react

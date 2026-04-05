@@ -241,6 +241,7 @@ The agent creates the full bead hierarchy autonomously. Watch `gt feed` or just 
 
 ```
 Ready to dispatch: edi-d0x and edi-7hm are unblocked (Wave 1).
+# (your IDs will be different)
 Awaiting your next instruction.
 ```
 
@@ -347,7 +348,7 @@ gt sling edi-042 YOUR_RIG
 
 ## Pipeline vs Manual: What You Gain
 
-| | Manual (Modules 1-4) | Pipeline (Module 5) |
+| | Manual (Modules 2-5) | Pipeline (Module 6) |
 |--|---|---|
 | Spec quality | Your first draft | 6-leg PRD review, you answer gaps |
 | Implementation plan | You reason about it | 6-dimensional parallel design |

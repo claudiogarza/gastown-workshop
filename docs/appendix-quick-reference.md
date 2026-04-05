@@ -1,4 +1,4 @@
-# Appendix A: Quick Reference Card
+# Quick Reference Card
 
 ## The Core Loop
 
@@ -9,7 +9,7 @@ bd create → gt sling → polecat works → gt done → Refinery merges → bd 
 ## The Pipeline Loop
 
 ```
-gt sling spec-workflow → plan-workflow → beads-workflow → gt convoy stage → launch
+gt sling mol-idea-to-plan → human gates → beads created → gt convoy stage → launch
 ```
 
 ## Bead Operations
@@ -120,16 +120,21 @@ gt dolt status                   # DB health
 gt dolt cleanup                  # remove orphan test DBs
 ```
 
-## Formula Pipeline
+## Formula Pipeline (Native)
 
 ```bash
-# Install (one-time)
-cp ~/source/gt-toolkit/formulas/*.formula.toml ~/gt/.beads/formulas/
+# Run the full idea-to-plan pipeline in a crew session
+gt sling mol-idea-to-plan YOUR_RIG/crew/human \
+  --var problem="your problem statement" \
+  --var context="existing codebase context"
 
-# Run
-gt sling spec-workflow <rig>/crew/<name> --var feature="X" --var brief="Y"
-gt sling plan-workflow <rig>/crew/<name> --var feature="X"
-gt sling beads-workflow <rig>/crew/<name> --var feature="X"
+# Human gates (mail-based)
+gt mail inbox
+gt mail read 1
+gt mail send YOUR_RIG/human --reply-to <id> --stdin << 'EOF'
+your answers
+EOF
+gt nudge YOUR_RIG/human "continue"
 ```
 
 ---

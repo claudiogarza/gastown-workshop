@@ -156,9 +156,10 @@ The "Impact" line is what matters. That's the literal value a bead body will cit
 |----------|---------|--------|--------|
 | Data source | OWM, WeatherAPI, wttr.in | wttr.in | `API_BASE_URL = "https://wttr.in"` |
 | Terminal rendering | plain print, ANSI, `rich` | `rich` | `rich>=13` in pyproject.toml |
+| HTTP client | urllib, httpx, `requests` | `requests` | `requests>=2.31` in pyproject.toml |
 | Units default | F only, F+flag, C+flag | F default, `--celsius` flag | `DEFAULT_UNITS = 'fahrenheit'` |
 | Failure mode | retry, fail-fast, cache | fail-fast | fetcher raises, main catches |
-| Module shape | 3-module, 5-module, monolith | 5-module | config / fetcher / processor / display / cli |
+| Module shape | monolith, 3-module, full split | full split | config / models / fetcher / parser / display / cli / \_\_main\_\_ |
 
 > 💡 **The brief constrains the design.** Zero-config → no API keys → wttr.in. The decision didn't require a long debate. The constraint made it obvious.
 
@@ -170,20 +171,23 @@ The design also produces a module layout:
 
 ```
 weatherly/
-  config.py      ← constants: API_BASE_URL, TIMEOUT, Units enum, Config dataclass
+  __init__.py    ← package marker
+  config.py      ← constants: API_BASE_URL, TIMEOUT, Config dataclass
+  models.py      ← WeatherData dataclass
   fetcher.py     ← HTTP GET wttr.in, returns raw dict
-  processor.py   ← parses raw dict → WeatherData dataclass
+  parser.py      ← parses raw dict → WeatherData
   display.py     ← rich-formatted rendering
-  cli.py         ← argparse, wires pipeline, handles errors
+  cli.py         ← argparse, returns Config
+  __main__.py    ← wires pipeline, handles errors
 ```
 
 And a data flow:
 
 ```
-cli.py → builds Config from args
-       → fetcher.py → raw JSON from wttr.in
-       → processor.py → structured WeatherData
-       → display.py → printed output
+__main__.py → cli.py → builds Config from args
+            → fetcher.py → raw JSON from wttr.in
+            → parser.py → structured WeatherData
+            → display.py → printed output
 ```
 
 Each module has one job. Dependencies flow one direction. This isn't aesthetic. It's what makes the bead breakdown clean.
@@ -239,12 +243,12 @@ The design's dependency structure maps directly to execution waves:
 
 ```
 Wave 1:  config.py (no deps, everyone imports from this)
-Wave 2:  fetcher.py + processor.py (parallel, both only need config)
-Wave 3:  display.py (needs WeatherData from processor)
+Wave 2:  fetcher.py + parser.py (parallel, both only need config)
+Wave 3:  display.py (needs WeatherData from models)
 Wave 4:  cli.py (wires everything, last)
 ```
 
-Fetcher and processor run in parallel because they never import each other. They communicate through a raw dict. That's not an accident; the design explicitly kept them decoupled so they'd parallelize cleanly.
+Fetcher and parser run in parallel because they never import each other. They communicate through a raw dict. That's not an accident; the design explicitly kept them decoupled so they'd parallelize cleanly.
 
 ### Plan checkpoint
 
@@ -288,7 +292,7 @@ You should now have these files in `docs/` in your current crew workspace:
 - `docs/design.md`: key decisions with concrete impacts, architecture, bead breakdown
 - `docs/initial-plan.bead.md`: ready-to-run `bd create` commands
 
-> 📋 **Staying on track:** The rest of the tutorial assumes the core weatherly constraints: zero config, wttr.in, Fahrenheit default with `--celsius` flag, 5-module architecture. As long as your plugin output kept those, you're good.
+> 📋 **Staying on track:** The rest of the tutorial assumes the core weatherly constraints: zero config, wttr.in, Fahrenheit default with `--celsius` flag. As long as your plugin output kept those, you're good.
 
 Take a few minutes to read them before moving on. The next module executes the first bead from that plan, and understanding where it came from is the point.
 

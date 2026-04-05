@@ -41,7 +41,7 @@ Create weatherly/config.py with API configuration and app defaults.
 File should contain:
 - API_BASE_URL = 'https://wttr.in'
 - DEFAULT_FORMAT = 'j1' (JSON format)
-- DEFAULT_UNITS = 'metric'
+- DEFAULT_UNITS = 'fahrenheit'
 - REQUEST_TIMEOUT = 10 (seconds)
 - A Config dataclass with location, units, and format fields
 
