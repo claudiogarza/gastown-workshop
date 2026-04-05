@@ -1,6 +1,12 @@
 # Module 1: From Idea to Beads
 
-> **Goal:** Understand the human work that happens *before* the first bead. Learn how an idea becomes a product brief, a brief becomes a design, and a design becomes a concrete bead plan — with every value traced back to a decision.
+> **Goal:** Understand the decision-making work that happens *before* the first bead is created. Learn how an idea becomes a product brief, a brief becomes a design, and a design becomes a concrete bead plan — with every value traced back to a decision.
+
+## What You're Doing in This Module
+
+In this module, you are not assigning work yet.
+
+You are creating the human decision trail that later becomes executable beads.
 
 ---
 
@@ -14,7 +20,7 @@ Before a polecat can build anything, a human has to answer three questions:
 2. **How will it work — what decisions need to be made?** (the design)
 3. **What units of work can an agent execute independently?** (the bead plan)
 
-Polecats can't answer these. They pick up a bead with a clear body and acceptance criteria, execute, and close. **If the bead body is vague, the output is vague.** The human layer is what makes bead bodies concrete.
+These decisions should be made before a polecat ever starts the work. Polecats pick up a bead with a clear body and acceptance criteria, execute, and close. **If the bead body is vague, the output is vague.** The human layer is what makes bead bodies concrete.
 
 ---
 
@@ -22,7 +28,7 @@ Polecats can't answer these. They pick up a bead with a clear body and acceptanc
 
 You want to build a terminal weather CLI. One command, clean output, no config required.
 
-That's a product idea. It's not a bead.
+That's a product idea. It's not a bead. It only becomes useful to Gas Town when it is turned into explicit decisions and executable work units.
 
 Let's trace how it becomes one.
 
@@ -30,7 +36,7 @@ Let's trace how it becomes one.
 
 ## Before You Start This Module
 
-This part of the tutorial happens **inside Claude Code**, not in a regular shell. The `gt-sdlc` commands are Claude Code slash commands — they only work from within a Claude Code session.
+This module uses **Claude Code slash commands**, not normal shell commands. The `gt-sdlc` commands only work from within an active Claude Code session.
 
 **Where to run it:** Your Gas Town crew workspace. This is where you do human-directed, exploratory work before slinging beads.
 
@@ -74,11 +80,11 @@ The plugin's output isn't deterministic — it adapts to what you say. But the *
 3. **Scope fences** — it confirms what's in and what's out, so the brief has clear boundaries.
 4. **Draft and review** — it writes a structured brief and asks if you're happy before saving.
 
-Your exact questions will differ, but the flow is always: **your idea → targeted gaps → scope agreement → written artifact**. The plugin is doing product thinking *with* you, not for you. Every answer you give becomes a constraint that shapes decisions downstream.
+Your exact questions will differ, but the flow is always: **your idea → targeted gaps → scope agreement → written artifact**. **The plugin is doing product thinking *with* you, not for you.** Every answer you give becomes a constraint that shapes decisions downstream.
 
 > 💡 **Why this matters:** If you'd said "Celsius default" here, it would cascade — the design doc, bead bodies, and test expectations all change. The brief is the root of the decision tree.
 
-### What the brief looks like
+### What a good brief captures
 
 The output lands in `docs/product-brief.md`. The key sections:
 
@@ -100,6 +106,13 @@ config file, no API key setup, and no prior run required.
 
 > 💡 **The brief's job** is to make the *constraint* clear. For weatherly, the constraint is zero config. Everything downstream flows from that single word.
 
+### Brief checkpoint
+
+Before moving on, make sure your brief:
+- states the core user experience clearly
+- defines what is in scope for v1
+- includes at least one concrete success criterion
+
 ---
 
 ## Step 2: The Design Document
@@ -113,6 +126,8 @@ The design answers: *how* will it work? This is where you make decisions — dat
 # Fast mode:
 /gt-sdlc:design --yolo
 ```
+
+> ⚠️ **Use `--yolo` only if you already understand the tradeoffs.** For this workshop, the interactive path is better because the decision trail is part of what you're learning.
 
 Output: `docs/design.md`
 
@@ -149,6 +164,8 @@ The "Impact" line is what matters. That's the literal value a bead body will cit
 
 ### The architecture
 
+Once the major decisions are made, the design should make the code boundaries obvious.
+
 The design also produces a module layout:
 
 ```
@@ -170,6 +187,13 @@ cli.py → builds Config from args
 ```
 
 Each module has one job. Dependencies flow one direction. This isn't aesthetic — it's what makes the bead breakdown clean.
+
+### Design checkpoint
+
+Before moving on, make sure your design:
+- names the key decisions explicitly
+- records the concrete impact of each decision
+- makes module boundaries and dependency direction obvious
 
 ---
 
@@ -222,6 +246,13 @@ Wave 4:  cli.py (wires everything — last)
 
 Fetcher and processor run in parallel because they never import each other — they communicate through a raw dict. That's not an accident; the design explicitly kept them decoupled so they'd parallelize cleanly.
 
+### Plan checkpoint
+
+Before moving on, make sure your bead plan:
+- maps each bead to a clear unit of work
+- encodes dependencies in the same order implied by the design
+- includes concrete values that trace back to design decisions
+
 ---
 
 ## The Connection
@@ -252,7 +283,7 @@ What matters is that the documents exist **before** you write the first bead. No
 
 ## Before You Continue
 
-You should now have in your repo:
+You should now have these files in `docs/` in your current crew workspace:
 - `docs/product-brief.md` — vision, problem, success criteria
 - `docs/design.md` — key decisions with concrete impacts, architecture, bead breakdown
 - `docs/initial-plan.bead.md` — ready-to-run `bd create` commands
